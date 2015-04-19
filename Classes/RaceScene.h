@@ -25,7 +25,7 @@ public:
 	TMXTiledMap* _tileAuxiliarMap;
 	TMXLayer* _background;
 
-	// playerPos = {0, 1, 2}, 0 = left, 1 = center, 2 = right
+	// playerPos = {0, 1, 2}, beeing 0 = left, 1 = center, 2 = right
 	short playerPos;
 
 	cocos2d::Sprite* player;
@@ -36,17 +36,14 @@ public:
 
 	void update(float delta);
 	//void moveMap(TMXTiledMap* tmx);
+	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
+	void moveObstacles(Vector<Sprite *> v);
 
 private:
-
-	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
 
 	bool onTouchBegan(Touch* touch, Event* event);
 	//void onTouchEnded(Touch* touch, Event* event);
 
-	void createObstacle();
-	void deleteObstacle(Sprite* s);
-	void moveObstacles(Vector<Sprite *> v);
 	void checkCollisions(Vector<Sprite *> v);
 
 	void menuCloseCallback(cocos2d::Ref* pSender);
