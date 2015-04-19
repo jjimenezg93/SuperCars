@@ -1,5 +1,6 @@
 # SuperCars
 
+This repository starts at v0.1.2, due to conflicts in the synchronization of previous cocos2d-x and GitHub folders.
 #### Author
 Julián Jiménez González - [jjimenezg93]
 
