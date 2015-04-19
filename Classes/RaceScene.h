@@ -32,14 +32,20 @@ public:
 	cocos2d::Sprite* leftArrow;
 	cocos2d::Sprite* rightArrow;
 
+	Vector<Sprite *> _obstacles;
+
 	void update(float delta);
 	//void moveMap(TMXTiledMap* tmx);
 	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
+	void moveObstacles(Vector<Sprite *> v);
 
 private:
 
 	bool onTouchBegan(Touch* touch, Event* event);
 	//void onTouchEnded(Touch* touch, Event* event);
+
+	void checkCollisions(Vector<Sprite *> v);
+
 	void menuCloseCallback(cocos2d::Ref* pSender);
 
 	//implement the "static create()" method manually

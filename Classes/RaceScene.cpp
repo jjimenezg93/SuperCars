@@ -6,6 +6,9 @@
  */
 
 #include "RaceScene.h"
+#include <random>
+#include <time.h>
+
 #define COCOS2D_DEBUG 1
 
 USING_NS_CC;
@@ -35,6 +38,7 @@ bool Race::init() {
 	visibleSize = Director::getInstance()->getVisibleSize();
 	playerPos = 1;
 
+
 	/*** MAP ***/
 	_tileMap = TMXTiledMap::create("background.tmx");
 	_tileMap->setPositionX(_tileMap->getPositionX() - 4);	// need to move -4 pixels (each side) because map size is 1024x608
@@ -53,6 +57,22 @@ bool Race::init() {
 	player->setPosition(Vec2(visibleSize.width/2 + origin.x, origin.y));
 
 	this->addChild(player);
+
+	Sprite* rock = Sprite::create("rock.png");
+
+	rock->setPosition(300,700);
+	rock->setTag(1);
+
+	/*Sprite* enemy = Sprite::create("opponent.png");
+
+	opponent->setPosition(350,700);
+	opponent->setTag(2);*/
+
+	this->addChild(rock);
+	_obstacles.pushBack(rock);
+
+	/*this->addChild(opponent);
+	_obstacles.pushBack(opponent);*/
 
 	/*** Close button ***/
 	auto closeItem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png", CC_CALLBACK_1(Race::menuCloseCallback, this));
@@ -80,11 +100,29 @@ void Race::update(float dt) {
 	}
 	_tileMap->setPositionY(_tileMap->getPositionY() - speed);
 	_tileAuxiliarMap->setPositionY(_tileAuxiliarMap->getPositionY() - speed);
+	moveObstacles(_obstacles);
+	checkCollisions(_obstacles);
 }
 
-/*void Race::moveMap(TMXTiledMap* tmx) {
-	tmx->setPositionY(1024);
-}*/
+void Race::moveObstacles(Vector<Sprite *> v) {
+	for (auto obstacle : v){
+		// TAG 1 = OBSTACLES; TAG 2 = OPPONENTS
+		if (obstacle->getTag() == 1){
+		obstacle->setPositionY(obstacle->getPositionY() - speed);
+		}/* else if (obstacle->getTag() == 2) {
+			obstacle->setPositionY(obstacle->getPositionY() - speed/2);
+		}*/
+	}
+}
+
+void Race::checkCollisions(Vector<Sprite *> v) {
+	for (auto obstacle : v){
+		if (player->getBoundingBox().intersectsRect(obstacle->getBoundingBox())){
+			auto moveUp = MoveBy::create(0.5,Vec2(0,100));
+			player->runAction(moveUp);		// TEMP ACTION TO CHECK COLLISIONS WORK FINE
+		}
+	}
+}
 
 void Race::createControls(Vec2 origin, Size visibleSize) {
 	/*** Directional arrows ***/
@@ -114,7 +152,7 @@ void Race::createControls(Vec2 origin, Size visibleSize) {
 	touchListener->setSwallowTouches(true);
 
 	touchListener->onTouchBegan = CC_CALLBACK_2(Race::onTouchBegan, this);
-	touchListener->onTouchEnded= CC_CALLBACK_2(Race::onTouchEnded, this);
+	//touchListener->onTouchEnded= CC_CALLBACK_2(Race::onTouchEnded, this);
 
 	// using SceneGraphPriority, when the Node is destroyed, the listener is removed automatically
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, leftArrow);
