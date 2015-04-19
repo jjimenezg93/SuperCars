@@ -6,7 +6,6 @@
  */
 
 #include "RaceScene.h"
-#include <random>
 #include <time.h>
 
 #define COCOS2D_DEBUG 1
@@ -102,6 +101,24 @@ void Race::update(float dt) {
 	_tileAuxiliarMap->setPositionY(_tileAuxiliarMap->getPositionY() - speed);
 	moveObstacles(_obstacles);
 	checkCollisions(_obstacles);
+	for (auto deletion : _obstacles){
+		if (deletion->getPositionY() < -50){
+			deleteObstacle(deletion);
+		}
+	}
+	// WITH A TIMER, CALL createObstacle() EVERY X (RANDOM) SECONDS
+}
+
+void Race::createObstacle() {
+	Sprite * obstacle = Sprite::create("rock.png");
+	int positionX = round(1 + rand()%4);
+	obstacle->setPosition(positionX, 1030);
+	this->addChild(obstacle);
+	_obstacles.pushBack(obstacle);
+}
+
+void Race::deleteObstacle(Sprite* s) {
+	_obstacles.eraseObject(s,false);
 }
 
 void Race::moveObstacles(Vector<Sprite *> v) {
