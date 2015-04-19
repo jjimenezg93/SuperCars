@@ -30,6 +30,8 @@ ___
 
 **Minimum Android version: 4.2.2**
 
+**Recommended screen size: 1024x600** *Still not responsive*
+
 To try out this project, [Classes/] and [Resources/] folders must be placed into the cocos2dx project.
 
 [How to create a new Cocos2dx project]
