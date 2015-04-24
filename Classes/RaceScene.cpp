@@ -48,6 +48,8 @@ bool Race::init() {
 	this->addChild(_tileAuxiliarMap);
 
 	speed = 5;
+	difficulty = 4;
+	temp = 0;
 
 	/*** PLAYER CREATION ***/
 	player = Sprite::create("gallardo.png");
@@ -57,20 +59,12 @@ bool Race::init() {
 
 	this->addChild(player);
 
-	Sprite* rock = Sprite::create("rock.png");
-
-	rock->setPosition(300,700);
-	rock->setTag(1);
-
 	/*Sprite* enemy = Sprite::create("opponent.png");
 
 	opponent->setPosition(350,700);
-	opponent->setTag(2);*/
+	opponent->setTag(2);
 
-	this->addChild(rock);
-	_obstacles.pushBack(rock);
-
-	/*this->addChild(opponent);
+	this->addChild(opponent);
 	_obstacles.pushBack(opponent);*/
 
 	/*** Close button ***/
@@ -87,6 +81,7 @@ bool Race::init() {
 	this->createControls(origin, visibleSize);
 
 	this->scheduleUpdate();
+	this->schedule(schedule_selector(Race::createObstacle), (float) speed/difficulty);
 
 	return true;
 }
@@ -97,8 +92,7 @@ void Race::update(float dt) {
 	} else if (_tileAuxiliarMap->getPositionY() <= -1024) {
 		_tileAuxiliarMap->setPositionY(1024);
 	}
-	_tileMap->setPositionY(_tileMap->getPositionY() - speed);
-	_tileAuxiliarMap->setPositionY(_tileAuxiliarMap->getPositionY() - speed);
+	moveMap(speed);
 	moveObstacles(_obstacles);
 	checkCollisions(_obstacles);
 	for (auto deletion : _obstacles){
@@ -106,13 +100,27 @@ void Race::update(float dt) {
 			deleteObstacle(deletion);
 		}
 	}
+
 	// WITH A TIMER, CALL createObstacle() EVERY X (RANDOM) SECONDS
+
+	/*if (temp <= 120){
+		temp++;
+	} else {
+		temp = 0;
+		createObstacle();
+	}*/
 }
 
-void Race::createObstacle() {
-	Sprite * obstacle = Sprite::create("rock.png");
-	int positionX = round(1 + rand()%4);
+void Race::moveMap(short speed) {
+	_tileMap->setPositionY(_tileMap->getPositionY() - speed);
+	_tileAuxiliarMap->setPositionY(_tileAuxiliarMap->getPositionY() - speed);
+}
+
+void Race::createObstacle(float dt) {
+	Sprite* obstacle = Sprite::create("rock.png");
+	int positionX = round(rand() % 300 + 1) + 150;	// RANDOM POSITIONS ALONG THE ROAD
 	obstacle->setPosition(positionX, 1030);
+	obstacle->setTag(1);
 	this->addChild(obstacle);
 	_obstacles.pushBack(obstacle);
 }
@@ -121,13 +129,13 @@ void Race::deleteObstacle(Sprite* s) {
 	_obstacles.eraseObject(s,false);
 }
 
-void Race::moveObstacles(Vector<Sprite *> v) {
-	for (auto obstacle : v){
+void Race::moveObstacles(Vector<Sprite *> obstacles) {
+	for (auto obstacle : obstacles){
 		// TAG 1 = OBSTACLES; TAG 2 = OPPONENTS
 		if (obstacle->getTag() == 1){
 		obstacle->setPositionY(obstacle->getPositionY() - speed);
 		}/* else if (obstacle->getTag() == 2) {
-			obstacle->setPositionY(obstacle->getPositionY() - speed/2);
+			obstacle->setPositionY(obstacle->getPositionY() - speed/difficulty);
 		}*/
 	}
 }
@@ -135,8 +143,8 @@ void Race::moveObstacles(Vector<Sprite *> v) {
 void Race::checkCollisions(Vector<Sprite *> v) {
 	for (auto obstacle : v){
 		if (player->getBoundingBox().intersectsRect(obstacle->getBoundingBox())){
-			auto moveUp = MoveBy::create(0.5,Vec2(0,100));
-			player->runAction(moveUp);		// TEMP ACTION TO CHECK COLLISIONS WORK FINE
+			auto moveUp = MoveBy::create(0.5,Vec2(0,50));
+			player->runAction(moveUp);		// TEMP ACTION TO CHECK FOR COLLISIONS WORKS FINE
 		}
 	}
 }

@@ -20,6 +20,8 @@ public:
 	Vec2 origin;
 	Size visibleSize;	// screen 1024x600
 	short speed;
+	short difficulty;
+	short temp;
 
 	TMXTiledMap* _tileMap;
 	TMXTiledMap* _tileAuxiliarMap;
@@ -35,8 +37,11 @@ public:
 	Vector<Sprite *> _obstacles;
 
 	void update(float delta);
-	//void moveMap(TMXTiledMap* tmx);
+	void moveMap(short speed);
 	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
+
+	void createObstacle(float dtime);
+	void deleteObstacle(Sprite* s);
 	void moveObstacles(Vector<Sprite *> v);
 
 private:
