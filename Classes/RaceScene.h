@@ -19,9 +19,10 @@ public:
 
 	Vec2 origin;
 	Size visibleSize;	// screen 1024x600
-	short speed;
-	short difficulty;
-	short temp;
+
+	short _speed;
+	short _difficulty;
+	short _timeStopped;
 
 	TMXTiledMap* _tileMap;
 	TMXTiledMap* _tileAuxiliarMap;
@@ -36,19 +37,27 @@ public:
 
 	Vector<Sprite *> _obstacles;
 
-	void update(float delta);
-	void moveMap(short speed);
 	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
 
-	void createObstacle(float dtime);
-	void deleteObstacle(Sprite* s);
+	void update(float delta);	// default scheduled method
+	void createObstacle(float dtime);	//custom scheduled method. Adds random obstacles to the road
+
+	void carStopped(float dtime);	//custom scheduled method to use when collision detected
+
+	void moveMap(float dtime);
+
+	/** Managing obstacles **/
 	void moveObstacles(Vector<Sprite *> v);
+	void deleteObstacle(Sprite* s);
 
 private:
 
 	bool onTouchBegan(Touch* touch, Event* event);
 	//void onTouchEnded(Touch* touch, Event* event);
 
+	void scheduleAll();		//method which schedules update(), moveMap() and createObstacle()
+
+	//Checks if there is a collision between each obstacle on the road and the player
 	void checkCollisions(Vector<Sprite *> v);
 
 	void menuCloseCallback(cocos2d::Ref* pSender);

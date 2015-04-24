@@ -47,9 +47,10 @@ bool Race::init() {
 	this->addChild(_tileMap);
 	this->addChild(_tileAuxiliarMap);
 
-	speed = 5;
-	difficulty = 4;
-	temp = 0;
+	/*** CONFIGURATION VARIABLES ***/
+	_speed = 5;
+	_difficulty = 4;
+	_timeStopped = 0;
 
 	/*** PLAYER CREATION ***/
 	player = Sprite::create("gallardo.png");
@@ -57,9 +58,9 @@ bool Race::init() {
 	player->setAnchorPoint(Vec2(0.5,0));
 	player->setPosition(Vec2(visibleSize.width/2 + origin.x, origin.y));
 
-	this->addChild(player);
+	this->addChild(player, 100);
 
-	/*Sprite* enemy = Sprite::create("opponent.png");
+	/*Sprite* opponent = Sprite::create("opponent.png");
 
 	opponent->setPosition(350,700);
 	opponent->setTag(2);
@@ -76,12 +77,11 @@ bool Race::init() {
 
 	auto menu = Menu::create(closeItem, NULL);
 	menu->setPosition(Vec2::ZERO);
-	this->addChild(menu);
+	this->addChild(menu, 10);
 
 	this->createControls(origin, visibleSize);
 
-	this->scheduleUpdate();
-	this->schedule(schedule_selector(Race::createObstacle), (float) speed/difficulty);
+	scheduleAll();
 
 	return true;
 }
@@ -92,28 +92,25 @@ void Race::update(float dt) {
 	} else if (_tileAuxiliarMap->getPositionY() <= -1024) {
 		_tileAuxiliarMap->setPositionY(1024);
 	}
-	moveMap(speed);
 	moveObstacles(_obstacles);
 	checkCollisions(_obstacles);
-	for (auto deletion : _obstacles){
-		if (deletion->getPositionY() < -50){
-			deleteObstacle(deletion);
+	for (auto obstacleToDelete : _obstacles){
+		if (obstacleToDelete->getPositionY() < -50){
+			deleteObstacle(obstacleToDelete);
 		}
 	}
 
-	// WITH A TIMER, CALL createObstacle() EVERY X (RANDOM) SECONDS
-
-	/*if (temp <= 120){
-		temp++;
-	} else {
-		temp = 0;
-		createObstacle();
-	}*/
 }
 
-void Race::moveMap(short speed) {
-	_tileMap->setPositionY(_tileMap->getPositionY() - speed);
-	_tileAuxiliarMap->setPositionY(_tileAuxiliarMap->getPositionY() - speed);
+void Race::scheduleAll() {
+	this->scheduleUpdate();
+	this->schedule(schedule_selector(Race::moveMap), (float) 0);
+	this->schedule(schedule_selector(Race::createObstacle), (float) _speed/_difficulty);
+}
+
+void Race::moveMap(float dt) {
+	_tileMap->setPositionY(_tileMap->getPositionY() - _speed);
+	_tileAuxiliarMap->setPositionY(_tileAuxiliarMap->getPositionY() - _speed);
 }
 
 void Race::createObstacle(float dt) {
@@ -121,30 +118,48 @@ void Race::createObstacle(float dt) {
 	int positionX = round(rand() % 300 + 1) + 150;	// RANDOM POSITIONS ALONG THE ROAD
 	obstacle->setPosition(positionX, 1030);
 	obstacle->setTag(1);
-	this->addChild(obstacle);
+	this->addChild(obstacle, 1);
 	_obstacles.pushBack(obstacle);
 }
 
 void Race::deleteObstacle(Sprite* s) {
 	_obstacles.eraseObject(s,false);
+	this->removeChild(s,true);
 }
 
 void Race::moveObstacles(Vector<Sprite *> obstacles) {
 	for (auto obstacle : obstacles){
 		// TAG 1 = OBSTACLES; TAG 2 = OPPONENTS
 		if (obstacle->getTag() == 1){
-		obstacle->setPositionY(obstacle->getPositionY() - speed);
+		obstacle->setPositionY(obstacle->getPositionY() - _speed);
 		}/* else if (obstacle->getTag() == 2) {
-			obstacle->setPositionY(obstacle->getPositionY() - speed/difficulty);
+			obstacle->setPositionY(obstacle->getPositionY() - _speed/_difficulty);
 		}*/
+	}
+}
+
+void Race::carStopped(float dt) {
+	if (_timeStopped < 2) {
+		_timeStopped++;
+	} else{
+		_timeStopped = 0;
+		_eventDispatcher->resumeEventListenersForTarget(leftArrow);
+		_eventDispatcher->resumeEventListenersForTarget(rightArrow);
+		scheduleAll();
+		this->unschedule(schedule_selector(Race::carStopped));
 	}
 }
 
 void Race::checkCollisions(Vector<Sprite *> v) {
 	for (auto obstacle : v){
 		if (player->getBoundingBox().intersectsRect(obstacle->getBoundingBox())){
-			auto moveUp = MoveBy::create(0.5,Vec2(0,50));
-			player->runAction(moveUp);		// TEMP ACTION TO CHECK FOR COLLISIONS WORKS FINE
+			this->unscheduleAllSelectors();
+			deleteObstacle(obstacle);
+			_eventDispatcher->pauseEventListenersForTarget(leftArrow);
+			_eventDispatcher->pauseEventListenersForTarget(rightArrow);
+			this->schedule(schedule_selector(Race::carStopped), 1.f);
+			/*auto moveUp = MoveBy::create(0.5,Vec2(0,50));
+			player->runAction(moveUp);		// TEMP ACTION TO CHECK FOR COLLISIONS WORKS FINE*/
 		}
 	}
 }
@@ -158,7 +173,7 @@ void Race::createControls(Vec2 origin, Size visibleSize) {
 
 	leftArrow->setPosition(Vec2(origin.x, origin.y + visibleSize.height/2));
 
-	this->addChild(leftArrow);
+	this->addChild(leftArrow, 10);
 
 	/*** RIGHT ARROW ***/
 	rightArrow = Sprite::create("right_arrow.png");
@@ -166,7 +181,7 @@ void Race::createControls(Vec2 origin, Size visibleSize) {
 
 	rightArrow->setPosition(Vec2(origin.x + visibleSize.width - rightArrow->getContentSize().width, origin.y + visibleSize.height/2));
 
-	this->addChild(rightArrow);
+	this->addChild(rightArrow, 10);
 
 	leftArrow->setTag(1);
 	rightArrow->setTag(2);
