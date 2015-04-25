@@ -7,28 +7,29 @@
 
 #include "RaceScene.h"
 #include <time.h>
+#include "SimpleAudioEngine.h"
 
 #define COCOS2D_DEBUG 1
 
 USING_NS_CC;
 
 Scene* Race::createScene() {
-    // 'scene' is an autorelease object
-    auto scene = Scene::create();
+	// 'scene' is an autorelease object
+	auto scene = Scene::create();
 
-    // 'layer' is an autorelease object
-    auto layer = Race::create();
+	// 'layer' is an autorelease object
+	auto layer = Race::create();
 
-    // add layer as a child to scene
-    scene->addChild(layer);
+	// add layer as a child to scene
+	scene->addChild(layer);
 
-    // return the scene
-    return scene;
+	// return the scene
+	return scene;
 }
 
 bool Race::init() {
 	// 1. super init first
-	if ( !Layer::init() ) {
+	if (!Layer::init()) {
 		return false;
 	}
 
@@ -37,10 +38,9 @@ bool Race::init() {
 	visibleSize = Director::getInstance()->getVisibleSize();
 	playerPos = 1;
 
-
 	/*** MAP ***/
 	_tileMap = TMXTiledMap::create("background.tmx");
-	_tileMap->setPositionX(_tileMap->getPositionX() - 4);	// need to move -4 pixels (each side) because map size is 1024x608
+	_tileMap->setPositionX(_tileMap->getPositionX() - 4); // need to move -4 pixels (each side) because map size is 1024x608
 	_tileAuxiliarMap = TMXTiledMap::create("background.tmx");
 	_tileAuxiliarMap->setPositionX(_tileMap->getPositionX());
 	_tileAuxiliarMap->setPositionY(1024);
@@ -48,38 +48,37 @@ bool Race::init() {
 	this->addChild(_tileAuxiliarMap);
 
 	/*** CONFIGURATION VARIABLES ***/
-	_speed = 5;
+	_speed = 6;
 	_difficulty = 4;
 	_timeStopped = 0;
+	_laps = 4;
+	_currentLap = 0;
 
 	/*** PLAYER CREATION ***/
 	player = Sprite::create("gallardo.png");
 
-	player->setAnchorPoint(Vec2(0.5,0));
-	player->setPosition(Vec2(visibleSize.width/2 + origin.x, origin.y));
+	player->setAnchorPoint(Vec2(0.5, 0));
+	player->setPosition(Vec2(visibleSize.width / 2 + origin.x, origin.y));
 
 	this->addChild(player, 100);
 
 	/*Sprite* opponent = Sprite::create("opponent.png");
 
-	opponent->setPosition(350,700);
-	opponent->setTag(2);
+	 opponent->setPosition(350,700);
+	 opponent->setTag(2);
 
-	this->addChild(opponent);
-	_obstacles.pushBack(opponent);*/
+	 this->addChild(opponent);
+	 _obstacles.pushBack(opponent);*/
 
-	/*** Close button ***/
-	auto closeItem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png", CC_CALLBACK_1(Race::menuCloseCallback, this));
-
-	closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width/2 ,
-								origin.y + visibleSize.height - closeItem->getContentSize().height/2));
-
-
-	auto menu = Menu::create(closeItem, NULL);
-	menu->setPosition(Vec2::ZERO);
-	this->addChild(menu, 10);
+	createMenu();
+	createLapLine();
 
 	this->createControls(origin, visibleSize);
+
+	audio = CocosDenshion::SimpleAudioEngine::getInstance();
+
+	audio->playBackgroundMusic("background_music.wav", true);
+	audio->setBackgroundMusicVolume(0.3f);
 
 	scheduleAll();
 
@@ -94,18 +93,50 @@ void Race::update(float dt) {
 	}
 	moveObstacles(_obstacles);
 	checkCollisions(_obstacles);
-	for (auto obstacleToDelete : _obstacles){
-		if (obstacleToDelete->getPositionY() < -50){
+	for (auto obstacleToDelete : _obstacles) {
+		if (obstacleToDelete->getPositionY() < -100) {
 			deleteObstacle(obstacleToDelete);
 		}
 	}
+}
 
+void Race::createMenu() {
+	/*** Close button ***/
+	auto closeItem = MenuItemImage::create("CloseNormal.png",
+			"CloseSelected.png", CC_CALLBACK_1(Race::menuCloseCallback, this));
+
+	closeItem->setPosition(
+			Vec2(
+					origin.x + visibleSize.width
+							- closeItem->getContentSize().width / 2,
+					origin.y + visibleSize.height
+							- closeItem->getContentSize().height / 2));
+
+	auto menu = Menu::create(closeItem, NULL);
+	menu->setPosition(Vec2::ZERO);
+	this->addChild(menu, 10);
+
+	/*static Label* createWithSystemFont(const std::string& text,
+			const std::string& font, float fontSize, const Size& dimensions =
+					Size::ZERO,
+			TextHAlignment hAlignment = TextHAlignment::LEFT,
+			TextVAlignment vAlignment = TextVAlignment::TOP);*/
+}
+
+void Race::createLapLine() {
+	Sprite* lapLine = Sprite::create("lap_line.png");
+	lapLine->setPosition(295, 5000);
+	lapLine->setTag(2); // when player gets to the lap, lapLine->Tag changes to 20
+	this->addChild(lapLine, 15);
+	_obstacles.pushBack(lapLine);
 }
 
 void Race::scheduleAll() {
 	this->scheduleUpdate();
 	this->schedule(schedule_selector(Race::moveMap), (float) 0);
-	this->schedule(schedule_selector(Race::createObstacle), (float) _speed/_difficulty);
+	this->schedule(schedule_selector(Race::createObstacle),
+			(float) (_speed / _difficulty));
+	this->schedule(schedule_selector(Race::checkLap), (float) 0.8f);
 }
 
 void Race::moveMap(float dt) {
@@ -115,33 +146,33 @@ void Race::moveMap(float dt) {
 
 void Race::createObstacle(float dt) {
 	Sprite* obstacle = Sprite::create("rock.png");
-	int positionX = round(rand() % 300 + 1) + 150;	// RANDOM POSITIONS ALONG THE ROAD
+	int positionX = round(rand() % 300 + 1) + 120; // RANDOM POSITIONS ALONG THE ROAD
 	obstacle->setPosition(positionX, 1030);
 	obstacle->setTag(1);
-	this->addChild(obstacle, 1);
+	this->addChild(obstacle, 20);
 	_obstacles.pushBack(obstacle);
 }
 
 void Race::deleteObstacle(Sprite* s) {
-	_obstacles.eraseObject(s,false);
-	this->removeChild(s,true);
+	_obstacles.eraseObject(s, false);
+	this->removeChild(s, true);
 }
 
 void Race::moveObstacles(Vector<Sprite *> obstacles) {
-	for (auto obstacle : obstacles){
-		// TAG 1 = OBSTACLES; TAG 2 = OPPONENTS
-		if (obstacle->getTag() == 1){
-		obstacle->setPositionY(obstacle->getPositionY() - _speed);
-		}/* else if (obstacle->getTag() == 2) {
-			obstacle->setPositionY(obstacle->getPositionY() - _speed/_difficulty);
-		}*/
+	for (auto obstacle : obstacles) {
+		// TAG 1 = ROCKS; TAG 2 = LAP_LINE; TAG 3 = OPPONENTS; TAG 20 = OLD_LAP_LINE
+		if (obstacle->getTag() == 1) {
+			obstacle->setPositionY(obstacle->getPositionY() - _speed);
+		} else if (obstacle->getTag() == 2 || obstacle->getTag() == 20) {
+			obstacle->setPositionY(obstacle->getPositionY() - _speed);
+		}
 	}
 }
 
 void Race::carStopped(float dt) {
-	if (_timeStopped < 2) {
+	if (_timeStopped < 1) {
 		_timeStopped++;
-	} else{
+	} else {
 		_timeStopped = 0;
 		_eventDispatcher->resumeEventListenersForTarget(leftArrow);
 		_eventDispatcher->resumeEventListenersForTarget(rightArrow);
@@ -150,16 +181,36 @@ void Race::carStopped(float dt) {
 	}
 }
 
+void Race::checkLap(float dt) {
+	if (_currentLap == _laps) {
+		// finish race
+		this->unscheduleAllSelectors();
+	}
+}
+
 void Race::checkCollisions(Vector<Sprite *> v) {
-	for (auto obstacle : v){
-		if (player->getBoundingBox().intersectsRect(obstacle->getBoundingBox())){
-			this->unscheduleAllSelectors();
-			deleteObstacle(obstacle);
-			_eventDispatcher->pauseEventListenersForTarget(leftArrow);
-			_eventDispatcher->pauseEventListenersForTarget(rightArrow);
-			this->schedule(schedule_selector(Race::carStopped), 1.f);
-			/*auto moveUp = MoveBy::create(0.5,Vec2(0,50));
-			player->runAction(moveUp);		// TEMP ACTION TO CHECK FOR COLLISIONS WORKS FINE*/
+	for (auto obstacle : v) {
+		if (player->getBoundingBox().intersectsRect(
+				obstacle->getBoundingBox())) {
+			if (obstacle->getTag() == 2) { // IF THE OBSTACLE IS THE LAP LINE
+				_currentLap++;
+				createLapLine();
+				obstacle->setTag(20);
+				audio->playEffect("lap_complete.wav", false, 1.f, 0.f, 1.f);
+			} else if (obstacle->getTag() == 1 || obstacle->getTag() == 3) {
+
+				// playEffect(source, loop, frequency, stereo effect, volume)
+				audio->playEffect("big-crash.wav", false, 1.f, 0.f, 1.f);
+
+				deleteObstacle(obstacle);
+
+				_eventDispatcher->pauseEventListenersForTarget(leftArrow);
+				_eventDispatcher->pauseEventListenersForTarget(rightArrow);
+
+				this->unscheduleAllSelectors();
+				this->schedule(schedule_selector(Race::carStopped), 1.f);
+
+			}
 		}
 	}
 }
@@ -169,17 +220,21 @@ void Race::createControls(Vec2 origin, Size visibleSize) {
 
 	/*** LEFT ARROW ***/
 	leftArrow = Sprite::create("left_arrow.png");
-	leftArrow->setAnchorPoint(Vec2(0,0));
+	leftArrow->setAnchorPoint(Vec2(0, 0));
 
-	leftArrow->setPosition(Vec2(origin.x, origin.y + visibleSize.height/2));
+	leftArrow->setPosition(Vec2(origin.x, origin.y + visibleSize.height / 2));
 
 	this->addChild(leftArrow, 10);
 
 	/*** RIGHT ARROW ***/
 	rightArrow = Sprite::create("right_arrow.png");
-	rightArrow->setAnchorPoint(Vec2(0,0));
+	rightArrow->setAnchorPoint(Vec2(0, 0));
 
-	rightArrow->setPosition(Vec2(origin.x + visibleSize.width - rightArrow->getContentSize().width, origin.y + visibleSize.height/2));
+	rightArrow->setPosition(
+			Vec2(
+					origin.x + visibleSize.width
+							- rightArrow->getContentSize().width,
+					origin.y + visibleSize.height / 2));
 
 	this->addChild(rightArrow, 10);
 
@@ -195,8 +250,10 @@ void Race::createControls(Vec2 origin, Size visibleSize) {
 	//touchListener->onTouchEnded= CC_CALLBACK_2(Race::onTouchEnded, this);
 
 	// using SceneGraphPriority, when the Node is destroyed, the listener is removed automatically
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, leftArrow);
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener->clone(), rightArrow);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener,
+			leftArrow);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(
+			touchListener->clone(), rightArrow);
 }
 
 bool Race::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
@@ -205,14 +262,14 @@ bool Race::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
 
 	if (boundingBoxArrow.containsPoint(touchPoint)
 			&& event->getCurrentTarget()->getTag() == 1
-			&& (playerPos == 1 || playerPos == 2)){
-		auto moveLeft = MoveBy::create(0.5,Vec2(-100,0));
+			&& (playerPos == 1 || playerPos == 2)) {
+		auto moveLeft = MoveBy::create(0.25, Vec2(-100, 0));
 		player->runAction(moveLeft);
 		playerPos--;
-	} else if(boundingBoxArrow.containsPoint(touchPoint)
+	} else if (boundingBoxArrow.containsPoint(touchPoint)
 			&& event->getCurrentTarget()->getTag() == 2
 			&& (playerPos == 0 || playerPos == 1)) {
-		auto moveRight = MoveBy::create(0.5,Vec2(100,0));
+		auto moveRight = MoveBy::create(0.25, Vec2(100, 0));
 		player->runAction(moveRight);
 		playerPos++;
 	}
@@ -221,7 +278,7 @@ bool Race::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
 
 /*void Race::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event) {
 
-}*/
+ }*/
 
 void Race::menuCloseCallback(Ref* pSender) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)

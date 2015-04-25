@@ -9,6 +9,7 @@
 #define RACESCENE_H_
 
 #include "cocos2d.h"
+#include "SimpleAudioEngine.h"
 
 using namespace cocos2d;
 
@@ -23,10 +24,13 @@ public:
 	short _speed;
 	short _difficulty;
 	short _timeStopped;
+	short _laps;
+	short _currentLap;
 
 	TMXTiledMap* _tileMap;
 	TMXTiledMap* _tileAuxiliarMap;
-	TMXLayer* _background;
+
+	CocosDenshion::SimpleAudioEngine* audio;
 
 	// playerPos = {0, 1, 2}, beeing 0 = left, 1 = center, 2 = right
 	short playerPos;
@@ -40,11 +44,14 @@ public:
 	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
 
 	void update(float delta);	// default scheduled method
+
 	void createObstacle(float dtime);	//custom scheduled method. Adds random obstacles to the road
 
-	void carStopped(float dtime);	//custom scheduled method to use when collision detected
+	void carStopped(float dtime);	//custom scheduled method. What to do when a collision is detected
 
 	void moveMap(float dtime);
+
+	void checkLap(float dtime);
 
 	/** Managing obstacles **/
 	void moveObstacles(Vector<Sprite *> v);
@@ -56,6 +63,9 @@ private:
 	//void onTouchEnded(Touch* touch, Event* event);
 
 	void scheduleAll();		//method which schedules update(), moveMap() and createObstacle()
+
+	void createMenu();
+	void createLapLine();
 
 	//Checks if there is a collision between each obstacle on the road and the player
 	void checkCollisions(Vector<Sprite *> v);
