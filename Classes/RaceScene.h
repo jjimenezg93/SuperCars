@@ -21,7 +21,7 @@ public:
 	Vec2 origin;
 	Size visibleSize;	// screen 1024x600
 
-	short _speed;
+	float _speed;
 	short _difficulty;
 	short _timeStopped;
 	short _laps;

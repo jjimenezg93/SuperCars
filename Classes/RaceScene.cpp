@@ -54,11 +54,11 @@ bool Race::init() {
 	_timeStopped = 0;
 	_laps = 4;
 	_currentLap = 0;
-	_currentPosition = 0;
 	_opponents = 0;
+	_currentPosition = _opponents;
 
 	/*** PLAYER CREATION ***/
-	player = Sprite::create("gallardo.png");
+	player = Sprite::create("audi_r8.png");
 
 	player->setAnchorPoint(Vec2(0.5, 0));
 	player->setPosition(Vec2(visibleSize.width / 2 + origin.x, origin.y));
@@ -88,6 +88,14 @@ bool Race::init() {
 	return true;
 }
 
+void Race::scheduleAll() {
+	this->scheduleUpdate();
+	this->schedule(schedule_selector(Race::moveMap), (float) 0);
+	this->schedule(schedule_selector(Race::createObstacle),
+			(float) (_speed / _difficulty));
+	this->schedule(schedule_selector(Race::checkLap), (float) 1.f);
+}
+
 void Race::update(float dt) {
 	if (_tileMap->getPositionY() <= -1024) {
 		_tileMap->setPositionY(1024);
@@ -101,6 +109,40 @@ void Race::update(float dt) {
 		if (obstacleToDelete->getPositionY() < -100) {
 			deleteObstacle(obstacleToDelete);
 		}
+	}
+}
+
+void Race::moveMap(float dt) {
+	_tileMap->setPositionY(_tileMap->getPositionY() - _speed);
+	_tileAuxiliarMap->setPositionY(_tileAuxiliarMap->getPositionY() - _speed);
+}
+
+void Race::createObstacle(float dt) {
+	Sprite* obstacle = Sprite::create("rock.png");
+	int positionX = round(rand() % 300 + 1) + 120; // RANDOM POSITIONS ALONG THE ROAD
+	obstacle->setPosition(positionX, 1030);
+	CCLog("Obstacle X position %d", positionX);
+	obstacle->setTag(1);
+	this->addChild(obstacle, 20);
+	_obstacles.pushBack(obstacle);
+}
+
+void Race::checkLap(float dt) {
+	if (_currentLap == _laps) {
+		// finish race
+		this->unscheduleAllSelectors();
+	}
+}
+
+void Race::carStopped(float dt) {
+	if (_timeStopped < 1) {
+		_timeStopped++;
+	} else {
+		_timeStopped = 0;
+		_eventDispatcher->resumeEventListenersForTarget(leftArrow);
+		_eventDispatcher->resumeEventListenersForTarget(rightArrow);
+		scheduleAll();
+		this->unschedule(schedule_selector(Race::carStopped));
 	}
 }
 
@@ -157,28 +199,6 @@ void Race::updatePosLabel() {
 	posLabel->setString(posLabelText);
 }
 
-void Race::scheduleAll() {
-	this->scheduleUpdate();
-	this->schedule(schedule_selector(Race::moveMap), (float) 0);
-	this->schedule(schedule_selector(Race::createObstacle),
-			(float) (_speed / _difficulty));
-	this->schedule(schedule_selector(Race::checkLap), (float) 0.8f);
-}
-
-void Race::moveMap(float dt) {
-	_tileMap->setPositionY(_tileMap->getPositionY() - _speed);
-	_tileAuxiliarMap->setPositionY(_tileAuxiliarMap->getPositionY() - _speed);
-}
-
-void Race::createObstacle(float dt) {
-	Sprite* obstacle = Sprite::create("rock.png");
-	int positionX = round(rand() % 300 + 1) + 120; // RANDOM POSITIONS ALONG THE ROAD
-	obstacle->setPosition(positionX, 1030);
-	obstacle->setTag(1);
-	this->addChild(obstacle, 20);
-	_obstacles.pushBack(obstacle);
-}
-
 void Race::deleteObstacle(Sprite* s) {
 	_obstacles.eraseObject(s, false);
 	this->removeChild(s, true);
@@ -195,24 +215,7 @@ void Race::moveObstacles(Vector<Sprite *> obstacles) {
 	}
 }
 
-void Race::carStopped(float dt) {
-	if (_timeStopped < 1) {
-		_timeStopped++;
-	} else {
-		_timeStopped = 0;
-		_eventDispatcher->resumeEventListenersForTarget(leftArrow);
-		_eventDispatcher->resumeEventListenersForTarget(rightArrow);
-		scheduleAll();
-		this->unschedule(schedule_selector(Race::carStopped));
-	}
-}
 
-void Race::checkLap(float dt) {
-	if (_currentLap == _laps) {
-		// finish race
-		this->unscheduleAllSelectors();
-	}
-}
 
 void Race::checkCollisions(Vector<Sprite *> v) {
 	for (auto obstacle : v) {

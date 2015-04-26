@@ -7,6 +7,7 @@
 
 #include "AppDelegate.h"
 #include "RaceScene.h"
+#include "MainMenuScene.h"
 
 USING_NS_CC;
 
@@ -36,10 +37,12 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setAnimationInterval(1.0 / 60);
 
     // create a scene. it's an autorelease object
-    auto raceScene = Race::createScene();
+    //auto raceScene = Race::createScene();
+    auto mainMenuScene = MainMenu::createScene();
 
     // run
-    director->runWithScene(raceScene);
+    //director->runWithScene(raceScene);
+    director->runWithScene(mainMenuScene);
 
     Director::getInstance()->setProjection(Director::Projection::_2D);
 
