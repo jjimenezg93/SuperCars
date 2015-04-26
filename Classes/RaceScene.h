@@ -26,11 +26,16 @@ public:
 	short _timeStopped;
 	short _laps;
 	short _currentLap;
+	short _opponents;
+	short _currentPosition;
 
 	TMXTiledMap* _tileMap;
 	TMXTiledMap* _tileAuxiliarMap;
 
 	CocosDenshion::SimpleAudioEngine* audio;
+
+	Label* lapLabel;
+	Label* posLabel;
 
 	// playerPos = {0, 1, 2}, beeing 0 = left, 1 = center, 2 = right
 	short playerPos;
@@ -66,6 +71,8 @@ private:
 
 	void createMenu();
 	void createLapLine();
+	void updateLapsLabel();
+	void updatePosLabel();
 
 	//Checks if there is a collision between each obstacle on the road and the player
 	void checkCollisions(Vector<Sprite *> v);

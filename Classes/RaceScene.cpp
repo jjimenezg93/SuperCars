@@ -8,6 +8,7 @@
 #include "RaceScene.h"
 #include <time.h>
 #include "SimpleAudioEngine.h"
+#include <stdio.h>
 
 #define COCOS2D_DEBUG 1
 
@@ -53,6 +54,8 @@ bool Race::init() {
 	_timeStopped = 0;
 	_laps = 4;
 	_currentLap = 0;
+	_currentPosition = 0;
+	_opponents = 0;
 
 	/*** PLAYER CREATION ***/
 	player = Sprite::create("gallardo.png");
@@ -91,6 +94,7 @@ void Race::update(float dt) {
 	} else if (_tileAuxiliarMap->getPositionY() <= -1024) {
 		_tileAuxiliarMap->setPositionY(1024);
 	}
+	updatePosLabel();
 	moveObstacles(_obstacles);
 	checkCollisions(_obstacles);
 	for (auto obstacleToDelete : _obstacles) {
@@ -116,19 +120,41 @@ void Race::createMenu() {
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
 
-	/*static Label* createWithSystemFont(const std::string& text,
-			const std::string& font, float fontSize, const Size& dimensions =
-					Size::ZERO,
-			TextHAlignment hAlignment = TextHAlignment::LEFT,
-			TextVAlignment vAlignment = TextVAlignment::TOP);*/
+	lapLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
+	lapLabel->setAnchorPoint(Vec2(0,1));
+	lapLabel->setPosition(Vec2(origin.x + lapLabel->getContentSize().width / 2,
+								origin.y + visibleSize.height - lapLabel->getContentSize().height / 2));
+	this->addChild(lapLabel);
+	updateLapsLabel();
+
+	posLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
+	posLabel->setAnchorPoint(Vec2(0,1));
+	posLabel->setPosition(Vec2(origin.x + posLabel->getContentSize().width / 2,
+								origin.y + visibleSize.height - lapLabel->getContentSize().height));
+	this->addChild(posLabel);
+	updatePosLabel();
 }
 
 void Race::createLapLine() {
 	Sprite* lapLine = Sprite::create("lap_line.png");
-	lapLine->setPosition(295, 5000);
+	lapLine->setPosition(292, 5000);
 	lapLine->setTag(2); // when player gets to the lap, lapLine->Tag changes to 20
 	this->addChild(lapLine, 15);
 	_obstacles.pushBack(lapLine);
+}
+
+void Race::updateLapsLabel() {
+	char lapsText [50];
+	sprintf(lapsText, "Laps %d/%d", _currentLap, _laps);
+	std::string lapLabelText (lapsText);
+	lapLabel->setString(lapLabelText);
+}
+
+void Race::updatePosLabel() {
+	char posText [50];
+	sprintf(posText, "Pos %d/%d", _currentPosition, _opponents);
+	std::string posLabelText (posText);
+	posLabel->setString(posLabelText);
 }
 
 void Race::scheduleAll() {
@@ -194,6 +220,7 @@ void Race::checkCollisions(Vector<Sprite *> v) {
 				obstacle->getBoundingBox())) {
 			if (obstacle->getTag() == 2) { // IF THE OBSTACLE IS THE LAP LINE
 				_currentLap++;
+				updateLapsLabel();
 				createLapLine();
 				obstacle->setTag(20);
 				audio->playEffect("lap_complete.wav", false, 1.f, 0.f, 1.f);
