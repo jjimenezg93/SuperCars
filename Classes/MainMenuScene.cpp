@@ -6,6 +6,7 @@
  */
 
 #include "RaceScene.h"
+#include "RaceConfScene.h"
 #include "MainMenuScene.h"
 #include <stdio.h>
 
@@ -40,22 +41,29 @@ bool MainMenu::init() {
 	this->addChild(background);
 
 	auto playButton = MenuItemImage::create("button_play_game.png",
-			"play_pressed.png", CC_CALLBACK_1(MainMenu::startGame, this));
+			"play_pressed.png", CC_CALLBACK_1(MainMenu::playGame, this));
 
 	playButton->setAnchorPoint(Vec2(0.5,0.5));
 	playButton->setPosition(Vec2(origin.x + visibleSize.width/2,
 					origin.y + visibleSize.height/2));
 
-	auto menu = Menu::create(playButton, NULL);
+	auto exitButton = MenuItemImage::create("button_play_game.png",
+				"play_pressed.png", CC_CALLBACK_1(MainMenu::menuCloseCallback, this));
+
+		exitButton->setAnchorPoint(Vec2(0.5,0.5));
+		exitButton->setPosition(Vec2(origin.x + visibleSize.width/2,
+						origin.y + exitButton->getContentSize().height));
+
+	auto menu = Menu::create(playButton, exitButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
 
 	return true;
 }
 
-void MainMenu::startGame(Ref* pSender) {
-	auto raceScene = Race::createScene();
-	Director::getInstance()->runWithScene(raceScene);
+void MainMenu::playGame(Ref* pSender) {
+	auto raceConfScene = RaceConf::createScene();
+	Director::getInstance()->runWithScene(raceConfScene);
 }
 
 void MainMenu::menuCloseCallback(Ref* pSender) {

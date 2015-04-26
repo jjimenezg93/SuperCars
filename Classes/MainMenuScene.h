@@ -28,7 +28,7 @@ public:
 	CocosDenshion::SimpleAudioEngine* audio;
 
 private:
-	void startGame(cocos2d::Ref* pSender);
+	void playGame(cocos2d::Ref* pSender);
 	void menuCloseCallback(cocos2d::Ref* pSender);
 
 	//implement the "static create()" method manually

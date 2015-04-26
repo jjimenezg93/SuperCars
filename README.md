@@ -14,7 +14,7 @@ C++
 
 ___
 #### Current Version
-v0.1.2
+v0.1.4
 
 ___
 #### Environment
@@ -24,6 +24,10 @@ To develop this project, the following software is being used:
 * Eclipse ADT Bundle (Eclipse IDE + Android SDK)
 * Android NDK r9d
 * Apache Ant 1.9.4
+
+Other Software:
+* Visual Paradigm 11.2*
+* Adobe Photoshop CS6
 
 ___
 #### Requirements

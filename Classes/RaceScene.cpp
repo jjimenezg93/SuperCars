@@ -148,17 +148,17 @@ void Race::carStopped(float dt) {
 
 void Race::createMenu() {
 	/*** Close button ***/
-	auto closeItem = MenuItemImage::create("CloseNormal.png",
-			"CloseSelected.png", CC_CALLBACK_1(Race::menuCloseCallback, this));
+	auto raceMenuButton = MenuItemImage::create("menu_button.png",
+			"menu_button.png", CC_CALLBACK_1(Race::menuCloseCallback, this));
 
-	closeItem->setPosition(
+	raceMenuButton->setPosition(
 			Vec2(
 					origin.x + visibleSize.width
-							- closeItem->getContentSize().width / 2,
+							- raceMenuButton->getContentSize().width / 2,
 					origin.y + visibleSize.height
-							- closeItem->getContentSize().height / 2));
+							- raceMenuButton->getContentSize().height / 2));
 
-	auto menu = Menu::create(closeItem, NULL);
+	auto menu = Menu::create(raceMenuButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
 
@@ -254,7 +254,7 @@ void Race::createControls(Vec2 origin, Size visibleSize) {
 
 	leftArrow->setPosition(Vec2(origin.x, origin.y + visibleSize.height / 2));
 
-	this->addChild(leftArrow, 10);
+	this->addChild(leftArrow, 100);
 
 	/*** RIGHT ARROW ***/
 	rightArrow = Sprite::create("right_arrow.png");
@@ -266,7 +266,7 @@ void Race::createControls(Vec2 origin, Size visibleSize) {
 							- rightArrow->getContentSize().width,
 					origin.y + visibleSize.height / 2));
 
-	this->addChild(rightArrow, 10);
+	this->addChild(rightArrow, 100);
 
 	leftArrow->setTag(1);
 	rightArrow->setTag(2);
