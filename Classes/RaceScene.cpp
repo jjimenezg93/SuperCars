@@ -51,13 +51,16 @@ bool Race::init() {
 	this->addChild(_tileAuxiliarMap);
 
 	/*** CONFIGURATION VARIABLES ***/
-	_speed = 6;
+	//_speed = 6;
+	_speed = UserDefault::getInstance()->getFloatForKey("speed");
+	//CCLog("Speed: %f", _speed);
 	_difficulty = 4;
 	_timeStopped = 0;
 	_laps = 4;
 	_currentLap = 0;
 	_opponents = 0;
 	_currentPosition = _opponents;
+
 
 	/*** PLAYER CREATION ***/
 	player = Sprite::create("audi_r8.png");
@@ -107,6 +110,9 @@ void Race::update(float dt) {
 	updatePosLabel();
 	moveObstacles(_obstacles);
 	checkCollisions(_obstacles);
+	if (!audio->isBackgroundMusicPlaying()){
+		audio->resumeBackgroundMusic();
+	}
 	for (auto obstacleToDelete : _obstacles) {
 		if (obstacleToDelete->getPositionY() < -100) {
 			deleteObstacle(obstacleToDelete);
@@ -313,11 +319,13 @@ bool Race::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
  }*/
 
 void Race::showEndRace(Ref* pSender) {
+	audio->end();
 	auto endRaceScene = EndRace::createScene();
 	Director::getInstance()->replaceScene(endRaceScene);
 }
 
 void Race::showRaceMenu(Ref* pSender) {
+	audio->pauseBackgroundMusic();
 	Director::getInstance()->pause();
 	auto raceMenuScene = RaceMenu::createScene();
 	Director::getInstance()->pushScene(raceMenuScene);
