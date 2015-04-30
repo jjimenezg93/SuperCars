@@ -63,10 +63,10 @@ bool RaceConf::init() {
 
 void RaceConf::startRace(Ref* pSender) {
 	auto raceScene = Race::createScene();
-	Director::getInstance()->runWithScene(raceScene);
+	Director::getInstance()->replaceScene(raceScene);
 }
 
 void RaceConf::backMainMenu(Ref* pSender) {
 	auto mainMenuScene = MainMenu::createScene();
-	Director::getInstance()->runWithScene(mainMenuScene);
+	Director::getInstance()->replaceScene(mainMenuScene);
 }
