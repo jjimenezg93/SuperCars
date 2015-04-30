@@ -14,7 +14,7 @@ C++
 
 ___
 #### Current Version
-v0.1.4
+v0.1.4.1-beta
 
 ___
 #### Environment
@@ -26,8 +26,9 @@ To develop this project, the following software is being used:
 * Apache Ant 1.9.4
 
 Other Software:
-* Visual Paradigm 11.2*
+* Visual Paradigm 11.2
 * Adobe Photoshop CS6
+* Tiled
 
 ___
 #### Requirements
