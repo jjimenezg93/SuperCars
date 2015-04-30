@@ -6,6 +6,7 @@
  */
 
 #include "RaceScene.h"
+#include "MainMenuScene.h"
 #include "RaceConfScene.h"
 #include <stdio.h>
 
@@ -39,14 +40,21 @@ bool RaceConf::init() {
 	background->setPosition(origin.x, origin.y);
 	this->addChild(background);
 
-	auto playButton = MenuItemImage::create("button_play_game.png",
-			"play_pressed.png", CC_CALLBACK_1(RaceConf::startRace, this));
+	auto startRaceButton = MenuItemImage::create("startRace_button.png",
+			"startRace_button_pressed.png", CC_CALLBACK_1(RaceConf::startRace, this));
 
-	playButton->setAnchorPoint(Vec2(0.5,0));
-	playButton->setPosition(Vec2(origin.x + visibleSize.width/2,
-					origin.y));
+	startRaceButton->setAnchorPoint(Vec2(0.5,0.5));
+	startRaceButton->setPosition(Vec2(origin.x + visibleSize.width/2,
+			origin.y + visibleSize.height/2));
 
-	auto menu = Menu::create(playButton, NULL);
+	auto backMainMenuButton = MenuItemImage::create("back_button.png",
+				"back_button_pressed.png", CC_CALLBACK_1(RaceConf::backMainMenu, this));
+
+	backMainMenuButton->setAnchorPoint(Vec2(0,0));
+	backMainMenuButton->setPosition(Vec2(origin.x,
+						origin.y));
+
+	auto menu = Menu::create(startRaceButton, backMainMenuButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
 
@@ -58,15 +66,7 @@ void RaceConf::startRace(Ref* pSender) {
 	Director::getInstance()->runWithScene(raceScene);
 }
 
-void RaceConf::menuCloseCallback(Ref* pSender) {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");
-	return;
-#endif
-
-	Director::getInstance()->end();
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-	exit(0);
-#endif
+void RaceConf::backMainMenu(Ref* pSender) {
+	auto mainMenuScene = MainMenu::createScene();
+	Director::getInstance()->runWithScene(mainMenuScene);
 }

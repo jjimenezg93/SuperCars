@@ -29,7 +29,7 @@ public:
 
 private:
 	void startRace(cocos2d::Ref* pSender);
-	void menuCloseCallback(cocos2d::Ref* pSender);
+	void backMainMenu(cocos2d::Ref* pSender);
 
 	//implement the "static create()" method manually
 	CREATE_FUNC(RaceConf);

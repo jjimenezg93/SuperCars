@@ -29,7 +29,8 @@ public:
 
 private:
 	void playGame(cocos2d::Ref* pSender);
-	void menuCloseCallback(cocos2d::Ref* pSender);
+	void showRanking(cocos2d::Ref* pSender);
+	void exitGame(cocos2d::Ref* pSender);
 
 	//implement the "static create()" method manually
 	CREATE_FUNC(MainMenu);

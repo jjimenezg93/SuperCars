@@ -14,7 +14,9 @@ LOCAL_SRC_FILES := hellocpp/main.cpp \
                    ../../Classes/AppDelegate.cpp \
                    ../../Classes/MainMenuScene.cpp \
                    ../../Classes/RaceConfScene.cpp \
-                   ../../Classes/RaceScene.cpp
+                   ../../Classes/RaceScene.cpp \
+                   ../../Classes/RaceMenuScene.cpp \
+                   ../../Classes/EndRaceScene.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes
 

@@ -5,7 +5,6 @@
  *      Author: jjimenezg93
  */
 
-#include "RaceScene.h"
 #include "RaceConfScene.h"
 #include "MainMenuScene.h"
 #include <stdio.h>
@@ -40,21 +39,34 @@ bool MainMenu::init() {
 	background->setPosition(origin.x, origin.y);
 	this->addChild(background);
 
-	auto playButton = MenuItemImage::create("button_play_game.png",
-			"play_pressed.png", CC_CALLBACK_1(MainMenu::playGame, this));
+	auto gameTitleLabel = Label::createWithTTF("SuperCars", "fonts/squares_bold.ttf", 36);
+	gameTitleLabel->setAnchorPoint(Vec2(0.5,1));
+	gameTitleLabel->setPosition(Vec2(origin.x + visibleSize.width / 2,
+								origin.y + visibleSize.height - gameTitleLabel->getContentSize().height));
+	this->addChild(gameTitleLabel);
+
+	auto playButton = MenuItemImage::create("play_button.png",
+			"play_button_pressed.png", CC_CALLBACK_1(MainMenu::playGame, this));
 
 	playButton->setAnchorPoint(Vec2(0.5,0.5));
 	playButton->setPosition(Vec2(origin.x + visibleSize.width/2,
 					origin.y + visibleSize.height/2));
 
-	auto exitButton = MenuItemImage::create("button_play_game.png",
-				"play_pressed.png", CC_CALLBACK_1(MainMenu::menuCloseCallback, this));
+	auto rankingButton = MenuItemImage::create("ranking_button.png",
+				"ranking_button_pressed.png", CC_CALLBACK_1(MainMenu::showRanking, this));
 
-		exitButton->setAnchorPoint(Vec2(0.5,0.5));
-		exitButton->setPosition(Vec2(origin.x + visibleSize.width/2,
-						origin.y + exitButton->getContentSize().height));
+		rankingButton->setAnchorPoint(Vec2(0.5,0.5));
+		rankingButton->setPosition(Vec2(origin.x + visibleSize.width/2,
+						origin.y + visibleSize.height/2 - playButton->getContentSize().height));
 
-	auto menu = Menu::create(playButton, exitButton, NULL);
+	auto exitButton = MenuItemImage::create("exit_button.png",
+				"exit_button_pressed.png", CC_CALLBACK_1(MainMenu::exitGame, this));
+
+		exitButton->setAnchorPoint(Vec2(0,0));
+		exitButton->setPosition(Vec2(origin.x,
+						origin.y));
+
+	auto menu = Menu::create(playButton, rankingButton, exitButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
 
@@ -63,18 +75,13 @@ bool MainMenu::init() {
 
 void MainMenu::playGame(Ref* pSender) {
 	auto raceConfScene = RaceConf::createScene();
-	Director::getInstance()->runWithScene(raceConfScene);
+	Director::getInstance()->replaceScene(raceConfScene);
 }
 
-void MainMenu::menuCloseCallback(Ref* pSender) {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");
-	return;
-#endif
+void MainMenu::showRanking(Ref* pSender) {
 
+}
+
+void MainMenu::exitGame(Ref* pSender) {
 	Director::getInstance()->end();
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-	exit(0);
-#endif
 }

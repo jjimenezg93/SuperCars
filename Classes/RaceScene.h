@@ -77,7 +77,8 @@ private:
 	//Checks if there is a collision between each obstacle on the road and the player
 	void checkCollisions(Vector<Sprite *> v);
 
-	void menuCloseCallback(cocos2d::Ref* pSender);
+	void showEndRace(cocos2d::Ref* pSender);
+	void showRaceMenu(Ref* pSender);
 
 	//implement the "static create()" method manually
 	CREATE_FUNC(Race);

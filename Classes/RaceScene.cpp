@@ -6,6 +6,8 @@
  */
 
 #include "RaceScene.h"
+#include "RaceMenuScene.h"
+#include "EndRaceScene.h"
 #include <time.h>
 #include "SimpleAudioEngine.h"
 #include <stdio.h>
@@ -129,7 +131,7 @@ void Race::createObstacle(float dt) {
 
 void Race::checkLap(float dt) {
 	if (_currentLap == _laps) {
-		// finish race
+		showEndRace(this);
 		this->unscheduleAllSelectors();
 	}
 }
@@ -149,7 +151,7 @@ void Race::carStopped(float dt) {
 void Race::createMenu() {
 	/*** Close button ***/
 	auto raceMenuButton = MenuItemImage::create("menu_button.png",
-			"menu_button.png", CC_CALLBACK_1(Race::menuCloseCallback, this));
+			"menu_button.png", CC_CALLBACK_1(Race::showRaceMenu, this));
 
 	raceMenuButton->setPosition(
 			Vec2(
@@ -310,15 +312,13 @@ bool Race::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
 
  }*/
 
-void Race::menuCloseCallback(Ref* pSender) {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-	MessageBox("You pressed the close button. Windows Store Apps do not implement a close button.","Alert");
-	return;
-#endif
+void Race::showEndRace(Ref* pSender) {
+	auto endRaceScene = EndRace::createScene();
+	Director::getInstance()->replaceScene(endRaceScene);
+}
 
-	Director::getInstance()->end();
-
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-	exit(0);
-#endif
+void Race::showRaceMenu(Ref* pSender) {
+	Director::getInstance()->pause();
+	auto raceMenuScene = RaceMenu::createScene();
+	Director::getInstance()->pushScene(raceMenuScene);
 }
