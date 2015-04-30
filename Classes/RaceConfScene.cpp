@@ -40,6 +40,16 @@ bool RaceConf::init() {
 	background->setPosition(origin.x, origin.y);
 	this->addChild(background);
 
+	createMenu();
+
+	UserDefault::getInstance()->setFloatForKey("speed",12);
+
+	//CCLog("Speed SET TO: %f", UserDefault::getInstance()->getFloatForKey("speed",12));
+
+	return true;
+}
+
+void RaceConf::createMenu() {
 	auto startRaceButton = MenuItemImage::create("startRace_button.png",
 			"startRace_button_pressed.png", CC_CALLBACK_1(RaceConf::startRace, this));
 
@@ -57,8 +67,6 @@ bool RaceConf::init() {
 	auto menu = Menu::create(startRaceButton, backMainMenuButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
-
-	return true;
 }
 
 void RaceConf::startRace(Ref* pSender) {

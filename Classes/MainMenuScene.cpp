@@ -45,6 +45,12 @@ bool MainMenu::init() {
 			origin.y + visibleSize.height - (title->getContentSize().height/2)));
 	this->addChild(title);
 
+	createMenu();
+
+	return true;
+}
+
+void MainMenu::createMenu() {
 	auto playButton = MenuItemImage::create("play_button.png",
 			"play_button_pressed.png", CC_CALLBACK_1(MainMenu::playGame, this));
 
@@ -69,12 +75,6 @@ bool MainMenu::init() {
 	auto menu = Menu::create(playButton, rankingButton, exitButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
-
-	UserDefault::getInstance()->setFloatForKey("speed",12);
-
-	//CCLog("Speed SET TO: %f", UserDefault::getInstance()->getFloatForKey("speed",12));
-
-	return true;
 }
 
 void MainMenu::playGame(Ref* pSender) {

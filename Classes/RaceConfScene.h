@@ -28,6 +28,8 @@ public:
 	CocosDenshion::SimpleAudioEngine* audio;
 
 private:
+	void createMenu();
+
 	void startRace(cocos2d::Ref* pSender);
 	void backMainMenu(cocos2d::Ref* pSender);
 

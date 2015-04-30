@@ -28,6 +28,8 @@ public:
 	CocosDenshion::SimpleAudioEngine* audio;
 
 private:
+	void createMenu();
+
 	void playGame(cocos2d::Ref* pSender);
 	void showRanking(cocos2d::Ref* pSender);
 	void exitGame(cocos2d::Ref* pSender);
