@@ -34,16 +34,16 @@ bool MainMenu::init() {
 	origin = Director::getInstance()->getVisibleOrigin();
 	visibleSize = Director::getInstance()->getVisibleSize();
 
-	auto background = Sprite::create("menuBackground.png");
-	background->setAnchorPoint(Vec2(0.5,0));
-	background->setPosition(origin.x, origin.y);
-	this->addChild(background);
+	_background = Sprite::create("menuBackground.png");
+	_background->setAnchorPoint(Vec2(0.5,0));
+	_background->setPosition(origin.x, origin.y);
+	this->addChild(_background);
 
-	auto title = Sprite::create("SuperCars-title.png");
-	title->setAnchorPoint(Vec2(0.5,1));
-	title->setPosition(Vec2(origin.x + visibleSize.width / 2,
-			origin.y + visibleSize.height - (title->getContentSize().height/2)));
-	this->addChild(title);
+	_logo = Sprite::create("SuperCars-title.png");
+	_logo->setAnchorPoint(Vec2(0.5,1));
+	_logo->setPosition(Vec2(origin.x + visibleSize.width / 2,
+			origin.y + visibleSize.height - _logo->getContentSize().height/2));
+	this->addChild(_logo);
 
 	createMenu();
 

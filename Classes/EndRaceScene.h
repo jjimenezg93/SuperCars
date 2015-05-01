@@ -6,29 +6,27 @@
  */
 
 #include "cocos2d.h"
-#include "SimpleAudioEngine.h"
 
 #ifndef ENDRACESCENE_H_
 #define ENDRACESCENE_H_
 
 using namespace cocos2d;
 
-class EndRace: public cocos2d::Layer {
+class EndRace: public Layer {
 public:
-	static cocos2d::Scene* createScene();
+	static Scene* createScene();
 	virtual bool init();
 
 	Vec2 origin;
 	Size visibleSize; // screen 1024x600
 
-	short _difficulty;
-	short _laps;
-	short _opponents;
-
-	CocosDenshion::SimpleAudioEngine* audio;
 
 private:
-	void backMainMenu(cocos2d::Ref* pSender);
+	Sprite* _background;
+
+	void createMenu();
+
+	void backMainMenu(Ref* pSender);
 
 	//implement the "static create()" method manually
 	CREATE_FUNC(EndRace);

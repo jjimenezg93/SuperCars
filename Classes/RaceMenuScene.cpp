@@ -35,38 +35,36 @@ bool RaceMenu::init() {
 	origin = Director::getInstance()->getVisibleOrigin();
 	visibleSize = Director::getInstance()->getVisibleSize();
 
-	auto background = Sprite::create("menuBackground.png");
-	background->setAnchorPoint(Vec2(0.5,0));
-	background->setPosition(origin.x, origin.y);
-	this->addChild(background);
+	_background = Sprite::create("menuBackground.png");
+	_background->setAnchorPoint(Vec2(0.5, 0));
+	_background->setPosition(origin.x, origin.y);
+	this->addChild(_background);
 
-	/******	DEBUG
-		auto gameTitleLabel = Label::createWithTTF("RaceMenu", "fonts/squares_bold.ttf", 34);
-			gameTitleLabel->setAnchorPoint(Vec2(1,1));
-			gameTitleLabel->setPosition(Vec2(origin.x + visibleSize.width / 2,
-										origin.y + visibleSize.height - gameTitleLabel->getContentSize().height));
-			this->addChild(gameTitleLabel);
-	******/
+	createMenu();
+
+	return true;
+}
+
+void RaceMenu::createMenu() {
 
 	auto resumeButton = MenuItemImage::create("resume_button.png",
-				"resume_button_pressed.png", CC_CALLBACK_1(RaceMenu::resumeRace, this));
+			"resume_button_pressed.png",
+			CC_CALLBACK_1(RaceMenu::resumeRace, this));
 
-		resumeButton->setAnchorPoint(Vec2(0.5,0.5));
-		resumeButton->setPosition(Vec2(origin.x + visibleSize.width/2,
-						origin.y + visibleSize.height/2));
+	resumeButton->setAnchorPoint(Vec2(0.5, 0.5));
+	resumeButton->setPosition(
+			Vec2(origin.x + visibleSize.width / 2,
+					origin.y + visibleSize.height / 2));
 
 	auto backButton = MenuItemImage::create("exit_button.png",
 			"exit_button_pressed.png", CC_CALLBACK_1(RaceMenu::quitRace, this));
 
-	backButton->setAnchorPoint(Vec2(0,0));
-	backButton->setPosition(Vec2(origin.x,
-					origin.y));
+	backButton->setAnchorPoint(Vec2(0, 0));
+	backButton->setPosition(Vec2(origin.x, origin.y));
 
 	auto menu = Menu::create(resumeButton, backButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
-
-	return true;
 }
 
 void RaceMenu::resumeRace(Ref* pSender) {
@@ -74,7 +72,6 @@ void RaceMenu::resumeRace(Ref* pSender) {
 	Director::getInstance()->resume();
 }
 
-/************/
 void RaceMenu::quitRace(Ref* pSender) {
 	Director::getInstance()->resume();
 	Director::getInstance()->popScene();

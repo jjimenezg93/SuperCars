@@ -34,29 +34,27 @@ bool EndRace::init() {
 	origin = Director::getInstance()->getVisibleOrigin();
 	visibleSize = Director::getInstance()->getVisibleSize();
 
-	auto background = Sprite::create("menuBackground.png");
-	background->setAnchorPoint(Vec2(0.5,0));
-	background->setPosition(origin.x, origin.y);
-	this->addChild(background);
-	/****** DEBUG
-	auto gameTitleLabel = Label::createWithTTF("EndRace", "fonts/squares_bold.ttf", 34);
-		gameTitleLabel->setAnchorPoint(Vec2(1,1));
-		gameTitleLabel->setPosition(Vec2(origin.x + visibleSize.width / 2,
-									origin.y + visibleSize.height - gameTitleLabel->getContentSize().height));
-		this->addChild(gameTitleLabel);
-	******/
-	auto backButton = MenuItemImage::create("back_button.png",
-			"back_button_pressed.png", CC_CALLBACK_1(EndRace::backMainMenu, this));
+	_background = Sprite::create("menuBackground.png");
+	_background->setAnchorPoint(Vec2(0.5, 0));
+	_background->setPosition(origin.x, origin.y);
+	this->addChild(_background);
 
-	backButton->setAnchorPoint(Vec2(0,0));
-	backButton->setPosition(Vec2(origin.x,
-					origin.y));
+	createMenu();
+
+	return true;
+}
+
+void EndRace::createMenu() {
+	auto backButton = MenuItemImage::create("back_button.png",
+			"back_button_pressed.png",
+			CC_CALLBACK_1(EndRace::backMainMenu, this));
+
+	backButton->setAnchorPoint(Vec2(0, 0));
+	backButton->setPosition(Vec2(origin.x, origin.y));
 
 	auto menu = Menu::create(backButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
-
-	return true;
 }
 
 void EndRace::backMainMenu(Ref* pSender) {

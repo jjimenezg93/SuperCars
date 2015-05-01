@@ -15,22 +15,11 @@ using namespace cocos2d;
 
 class Race : public cocos2d::Layer {
 public:
-	static cocos2d::Scene* createScene();
+	static Scene* createScene();
 	virtual bool init();
 
 	Vec2 origin;
 	Size visibleSize;	// screen 1024x600
-
-	float _speed;
-	short _difficulty;
-	short _timeStopped;
-	short _laps;
-	short _currentLap;
-	short _opponents;
-	short _currentPosition;
-
-	TMXTiledMap* _tileMap;
-	TMXTiledMap* _tileAuxiliarMap;
 
 	CocosDenshion::SimpleAudioEngine* audio;
 
@@ -44,28 +33,37 @@ public:
 	cocos2d::Sprite* leftArrow;
 	cocos2d::Sprite* rightArrow;
 
-	Vector<Sprite *> _obstacles;
-
 	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
 
 	void update(float delta);	// default scheduled method
 
-	void createObstacle(float dtime);	//custom scheduled method. Adds random obstacles to the road
+	void createObstacle(float delta);	//custom scheduled method. Adds random obstacles to the road
 
-	void carStopped(float dtime);	//custom scheduled method. What to do when a collision is detected
+	void carStopped(float delta);	//custom scheduled method. What to do when a collision is detected
 
-	void moveMap(float dtime);
+	void moveMap(float delta);
 
-	void checkLap(float dtime);
+	void checkLap(float delta);
 
 	/** Managing obstacles **/
 	void moveObstacles(Vector<Sprite *> v);
 	void deleteObstacle(Sprite* s);
 
 private:
+	TMXTiledMap* _tileMap;
+	TMXTiledMap* _tileAuxiliarMap;
+
+	float _speed;
+	short _difficulty;
+	short _timeStopped;
+	short _laps;
+	short _currentLap;
+	short _opponents;
+	short _currentPosition;
+
+	Vector<Sprite *> _obstacles;
 
 	bool onTouchBegan(Touch* touch, Event* event);
-	//void onTouchEnded(Touch* touch, Event* event);
 
 	void scheduleAll();		//method which schedules update(), moveMap() and createObstacle()
 
@@ -77,7 +75,7 @@ private:
 	//Checks if there is a collision between each obstacle on the road and the player
 	void checkCollisions(Vector<Sprite *> v);
 
-	void showEndRace(cocos2d::Ref* pSender);
+	void showEndRace(Ref* pSender);
 	void showRaceMenu(Ref* pSender);
 
 	//implement the "static create()" method manually

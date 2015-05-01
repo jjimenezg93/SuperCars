@@ -314,10 +314,6 @@ bool Race::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
 	return false;
 }
 
-/*void Race::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event) {
-
- }*/
-
 void Race::showEndRace(Ref* pSender) {
 	audio->end();
 	auto endRaceScene = EndRace::createScene();

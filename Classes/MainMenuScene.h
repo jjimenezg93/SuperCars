@@ -13,26 +13,27 @@
 
 using namespace cocos2d;
 
-class MainMenu: public cocos2d::Layer {
+class MainMenu: public Layer {
 public:
-	static cocos2d::Scene* createScene();
+	static Scene* createScene();
 	virtual bool init();
 
 	Vec2 origin;
 	Size visibleSize; // screen 1024x600
 
+private:
+	Sprite* _background;
+	Sprite* _logo;
+
 	short _difficulty;
 	short _laps;
 	short _opponents;
 
-	CocosDenshion::SimpleAudioEngine* audio;
-
-private:
 	void createMenu();
 
-	void playGame(cocos2d::Ref* pSender);
-	void showRanking(cocos2d::Ref* pSender);
-	void exitGame(cocos2d::Ref* pSender);
+	void playGame(Ref* pSender);
+	void showRanking(Ref* pSender);
+	void exitGame(Ref* pSender);
 
 	//implement the "static create()" method manually
 	CREATE_FUNC(MainMenu);

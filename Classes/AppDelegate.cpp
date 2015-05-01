@@ -6,7 +6,6 @@
  */
 
 #include "AppDelegate.h"
-#include "RaceScene.h"
 #include "MainMenuScene.h"
 
 USING_NS_CC;

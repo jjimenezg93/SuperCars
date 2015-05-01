@@ -3,129 +3,92 @@
     
   </head>
   <body>
-    <table height="154" id="maintable" width="606" border="0">
-      <tr id="Gdgj0zKGAqAAcAdf">
-        <td height="47" id="generallabel_10_1429347769334" width="143">
-          <b><font size="3">Descripci&#243;n breve</font></b>
+    <table id="maintable" width="648" height="154" border="0">
+      <tr id="jjqt8LKGAqAAcBms">
+        <td id="generallabel_53_1430487653570" width="169" height="47">
+          <font size="3"><b>Descripci&#243;n breve</b> </font>
         </td>
-        <td height="47" id="generalvalue_10_1429347769334" width="463">
-          El jugador pulsa un bot&#243;n de direcci&#243;n y el coche se mueve al sitio 
-          correspondiente.
-        </td>
-      </tr>
-      <tr id="Gdgj0zKGAqAAcAdg">
-        <td height="32" id="generallabel_9_1429347769334" width="143">
-          <b><font size="3">Preconditions</font></b>
-        </td>
-        <td height="32" id="generalvalue_9_1429347769334" width="463">
-          La escena activa es &quot;Race&quot;
+        <td id="generalvalue_53_1430487653570" width="464" height="47">
+          
         </td>
       </tr>
-      <tr id="Gdgj0zKGAqAAcAdh">
-        <td height="33" id="generallabel_8_1429347769334" width="143">
-          <b><font size="3">Postcondiciones</font></b>
+      <tr id="Djqt8LKGAqAAcBmr">
+        <td id="generallabel_52_1430487653570" width="169" height="32">
+          <font size="3"><b>Precondiciones</b> </font>
         </td>
-        <td height="33" id="generalvalue_8_1429347769334" width="463">
-          El coche se ha movido a la posici&#243;n deseada
+        <td id="generalvalue_52_1430487653570" width="464" height="32">
+          
         </td>
       </tr>
-      <tr id="Gdgj0zKGAqAAcAdj">
-        <td height="42" id="flowofeventlabelId_7_1429347769334" width="143">
-          <b><font size="3">Flujo de Eventos</font></b>
+      <tr id="Djqt8LKGAqAAcBmq">
+        <td id="generallabel_51_1430487653570" width="169" height="33">
+          <font size="3"><b>Postcondiciones</b> </font>
         </td>
-        <td width="463" height="42" style="padding-left:0;" id="flowofeventvalueId_7_1429347769334" valign="top">
-          <table width="458" border="0">
+        <td id="generalvalue_51_1430487653570" width="464" height="33">
+          
+        </td>
+      </tr>
+      <tr id="9jqt8LKGAqAAcBmo">
+        <td id="flowofeventlabelId_50_1430487653570" width="169" height="42">
+          <font size="3"><b>Flujo de Eventos</b> </font>
+        </td>
+        <td height="42" style="padding-left:0;" width="479" id="flowofeventvalueId_50_1430487653570" valign="top">
+          <table width="477" border="0">
             <tr>
-              <td id="flowofeventfirstcelllabel_7_1429347769334" width="20">
+              <td id="flowofeventfirstcelllabel_50_1430487653570" width="20">
                 <font size="3">&#160; </font>
               </td>
-              <td align="center" id="flowofeventactioninputlabel_7_1429347769334" width="195">
-                <b>Jugador</b>
+              <td id="flowofeventactioninputlabel_50_1430487653570" width="195" align="center">
+                <p align="center">
+                  <font size="3"><b>Jugador</b> 
+</font>                </p>
               </td>
-              <td align="center" id="flowofeventsystemresponselabel_7_1429347769334" width="244">
-                <b><font size="3">Sistema</font></b>
-              </td>
+              <td id="flowofeventsystemresponselabel_50_1430487653570" width="264" align="center">
+                <font size="3"><b>Sistema</b> 
+</font>              </td>
             </tr>
             <tr>
-              <td id="flowofeventNumIdPrefix_7_14293477693341">
-                <font size="3">1 </font>
-              </td>
-              <td class="actor" width="195">
-                Pulsa bot&#243;n de movimiento &quot;leftArrow&quot; o derecha &quot;rightArrow&quot;
-              </td>
-              <td class="system" width="244">
-                
-              </td>
-            </tr>
-            <tr>
-              <td id="flowofeventNumIdPrefix_7_14293477693342">
-                <p>
-                  2
-                </p>
-              </td>
-              <td class="actor" width="195">
-                
-              </td>
-              <td class="system" width="244">
-                Identifica cu&#225;l de los botones ha sido pulsado
-              </td>
-            </tr>
-            <tr>
-              <td id="flowofeventNumIdPrefix_7_14293477693343">
-                <p>
-                  3
-                </p>
-              </td>
-              <td class="actor" width="195">
-                
-              </td>
-              <td class="system" width="244">
-                Mueve el veh&#237;culo al lado correspondiente [A1]
-              </td>
-            </tr>
-            <tr>
-              <td id="flowofeventNumIdPrefix_7_14293477693344">
-                <p>
-                  4
-                </p>
-              </td>
-              <td class="actor" width="195">
-                
-              </td>
-              <td class="system" width="244">
-                
-              </td>
+              <td id="flowofeventNumIdPrefix_50_14304876535701">
+                <font size="3">1 
+</font>              </td>
+              <td class="actor">
+                <font size="3">
+</font>              </td>
+              <td width="264" class="system">
+                <font size="3">
+</font>              </td>
             </tr>
           </table>
         </td>
       </tr>
-      <tr id="OnCz0zKGAqAAcAdw">
-        <td id="flowofeventlabelId_15_1429348315563" width="143">
-          <b>Flujo Alternativo [A1]</b>
+      <tr id="djqt8LKGAqAAcBmm">
+        <td id="flowofeventlabelId_49_1430487653569" width="169">
+          <font size="3"><b>Flujo Alternativo [A1]</b> </font>
         </td>
-        <td valign="top" id="flowofeventvalueId_15_1429348315563" width="400" style="padding-left:0;">
-          <table width="100%" border="0">
+        <td valign="top" id="flowofeventvalueId_49_1430487653569" width="464" style="padding-left:0;">
+          <table width="473" border="0">
             <tr>
-              <td id="flowofeventfirstcelllabel_15_1429348315563" width="20">
-                &#160;
+              <td id="flowofeventfirstcelllabel_49_1430487653569" width="20">
+                <font size="3">&#160; </font>
               </td>
-              <td align="center" id="flowofeventactioninputlabel_15_1429348315563" width="222">
-                <b>Actor Input</b>
+              <td id="flowofeventactioninputlabel_49_1430487653569" width="188" align="center">
+                <p align="center">
+                  <font size="3"><b>Jugador</b></font>
+                </p>
               </td>
-              <td align="center" id="flowofeventsystemresponselabel_15_1429348315563" width="278">
-                <b>System Response</b>
+              <td id="flowofeventsystemresponselabel_49_1430487653569" width="257" align="center">
+                &#160; <font size="3"><b>Sistema</b></font>
               </td>
             </tr>
             <tr>
-              <td id="flowofeventNumIdPrefix_15_14293483155631">
-                1
+              <td id="flowofeventNumIdPrefix_49_14304876535691">
+                <font size="3">1 </font>
               </td>
-              <td class="actor">
+              <td width="188" class="actor">
                 
               </td>
-              <td class="system" width="278">
-                Si est&#225; a la izquierda y se ha pulsado &quot;leftArrow&quot;, no hace 
-                nada
+              <td width="257" class="system">
+                
               </td>
             </tr>
           </table>

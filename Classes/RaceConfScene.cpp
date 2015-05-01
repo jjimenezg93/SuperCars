@@ -35,10 +35,10 @@ bool RaceConf::init() {
 	origin = Director::getInstance()->getVisibleOrigin();
 	visibleSize = Director::getInstance()->getVisibleSize();
 
-	auto background = Sprite::create("menuBackground.png");
-	background->setAnchorPoint(Vec2(0.5,0));
-	background->setPosition(origin.x, origin.y);
-	this->addChild(background);
+	_background = Sprite::create("menuBackground.png");
+	_background->setAnchorPoint(Vec2(0.5,0));
+	_background->setPosition(origin.x, origin.y);
+	this->addChild(_background);
 
 	createMenu();
 
