@@ -46,8 +46,6 @@ bool RaceConf::init() {
 	createMenu();
 	createConfMenu();
 
-	UserDefault::getInstance()->setFloatForKey("speed", 12);
-
 	//CCLog("Speed SET TO: %f", UserDefault::getInstance()->getFloatForKey("speed",12));
 
 	return true;
@@ -59,7 +57,7 @@ void RaceConf::createConfMenu() {
 	// editBoxSize is used for the size of labels and UI widgets
 	Size editBoxSize = Size(250, 60);
 
-	/****	NAME TEXT LABEL	****/
+	/**********		NAME	**********/
 	nameLabel = Label::createWithTTF("Name", "fonts/squares_bold.ttf", 32);
 	nameLabel->setAnchorPoint(Vec2(1, 0.5));
 	nameLabel->enableOutline(Color4B::BLACK, 2);
@@ -68,7 +66,6 @@ void RaceConf::createConfMenu() {
 					origin.y + visibleSize.height - editBoxSize.height * 2));
 	this->addChild(nameLabel);
 
-	/****	NAME INPUT FIELD	****/
 	Scale9Sprite* pNormal = Scale9Sprite::create("input_field.png");
 	_playerName = EditBox::create(editBoxSize, pNormal);
 	_playerName->setAnchorPoint(Vec2(0, 0.5));
@@ -82,7 +79,7 @@ void RaceConf::createConfMenu() {
 
 	this->addChild(_playerName);
 
-	/****	DIFFICULTY TEXT LABEL	****/
+	/**********		DIFFICULTY	**********/
 	difficultyLabel = Label::createWithTTF("Difficulty",
 			"fonts/squares_bold.ttf", 28);
 	difficultyLabel->setAnchorPoint(Vec2(1, 0.5));
@@ -100,21 +97,20 @@ void RaceConf::createConfMenu() {
 					origin.y + visibleSize.height - editBoxSize.height * 4));
 
 	_difficultySlider->setMinimumValue(1.f);
-	_difficultySlider->setMaximumValue(3.f);
-	this->schedule(schedule_selector(RaceConf::sliderUpdate), (float) 0);
+	_difficultySlider->setMaximumValue(5.f);
+	this->schedule(schedule_selector(RaceConf::diffUpdate), 0.f);
 	this->addChild(_difficultySlider);
 
-	_tempLabel = Label::createWithTTF("",
+	_difficultyValue = Label::createWithTTF("",
 			"fonts/squares_bold.ttf", 28);
-	_tempLabel->setAnchorPoint(Vec2(0, 0));
-	_tempLabel->enableOutline(Color4B::BLACK, 2);
-	_tempLabel->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + 140));
+	_difficultyValue->setAnchorPoint(Vec2(0, 0.5));
+	_difficultyValue->enableOutline(Color4B::BLACK, 2);
+	_difficultyValue->setPosition(_difficultySlider->getPosition() + Vec2(_margin, 0));
 
-	this->addChild(_tempLabel);
+	this->addChild(_difficultyValue);
 
 
-
-	/****	OPPONENTS TEXT LABEL	****/
+	/**********		OPPONENTS	**********/
 	opponentsLabel = Label::createWithTTF("Rivals", "fonts/squares_bold.ttf",
 			32);
 	opponentsLabel->setAnchorPoint(Vec2(1, 0.5));
@@ -124,7 +120,28 @@ void RaceConf::createConfMenu() {
 					origin.y + visibleSize.height - editBoxSize.height * 6));
 	this->addChild(opponentsLabel);
 
-	/****	LAPS TEXT LABEL	****/
+	_opponentsSlider = ControlSlider::create("loadBar.png",
+			"loadBarProgress.png", "loadBall.png", "loadBallPressed.png");
+	_opponentsSlider->setAnchorPoint(Vec2(1, 0.5));
+	_opponentsSlider->setPosition(
+			Vec2(origin.x + editBoxSize.width * 2,
+					origin.y + visibleSize.height - editBoxSize.height * 6));
+
+	_opponentsSlider->setMinimumValue(1.f);
+	_opponentsSlider->setMaximumValue(3.f);
+	this->schedule(schedule_selector(RaceConf::oppUpdate), 0.f);
+	this->addChild(_opponentsSlider);
+
+	_opponentsValue = Label::createWithTTF("",
+			"fonts/squares_bold.ttf", 28);
+	_opponentsValue->setAnchorPoint(Vec2(0, 0.5));
+	_opponentsValue->enableOutline(Color4B::BLACK, 2);
+	_opponentsValue->setPosition(_opponentsSlider->getPosition() + Vec2(_margin, 0));
+
+	this->addChild(_opponentsValue);
+
+
+	/**********		LAPS	**********/
 	lapsLabel = Label::createWithTTF("Laps", "fonts/squares_bold.ttf", 32);
 	lapsLabel->setAnchorPoint(Vec2(1, 0.5));
 	lapsLabel->enableOutline(Color4B::BLACK, 2);
@@ -132,15 +149,53 @@ void RaceConf::createConfMenu() {
 			Vec2(origin.x + editBoxSize.width,
 					origin.y + visibleSize.height - editBoxSize.height * 8));
 	this->addChild(lapsLabel);
+
+	_lapsSlider = ControlSlider::create("loadBar.png",
+			"loadBarProgress.png", "loadBall.png", "loadBallPressed.png");
+	_lapsSlider->setAnchorPoint(Vec2(1, 0.5));
+	_lapsSlider->setPosition(
+			Vec2(origin.x + editBoxSize.width * 2,
+					origin.y + visibleSize.height - editBoxSize.height * 8));
+
+	_lapsSlider->setMinimumValue(1.f);
+	_lapsSlider->setMaximumValue(10.f);
+	this->schedule(schedule_selector(RaceConf::lapsUpdate), 0.f);
+	this->addChild(_lapsSlider);
+
+	_lapsValue = Label::createWithTTF("",
+			"fonts/squares_bold.ttf", 28);
+	_lapsValue->setAnchorPoint(Vec2(0, 0.5));
+	_lapsValue->enableOutline(Color4B::BLACK, 2);
+	_lapsValue->setPosition(_lapsSlider->getPosition() + Vec2(_margin, 0));
+
+	this->addChild(_lapsValue);
 }
 
-void RaceConf::sliderUpdate(float delta) {
+void RaceConf::diffUpdate(float delta) {
 	char diff [50];
 	_difficultySlider->setValue(round(_difficultySlider->getValue()));
-	sprintf(diff, "diff = %f", _difficultySlider->getValue());
+	sprintf(diff, "%d", int(_difficultySlider->getValue()));
 	std::string diffLabel (diff);
 
-	_tempLabel->setString(diffLabel);
+	_difficultyValue->setString(diffLabel);
+}
+
+void RaceConf::oppUpdate(float delta) {
+	char opp [50];
+	_opponentsSlider->setValue(round(_opponentsSlider->getValue()));
+	sprintf(opp, "%d", int(_opponentsSlider->getValue()));
+	std::string oppLabel (opp);
+
+	_opponentsValue->setString(oppLabel);
+}
+
+void RaceConf::lapsUpdate(float delta) {
+	char laps [50];
+	_lapsSlider->setValue(round(_lapsSlider->getValue()));
+	sprintf(laps, "%d", int(_lapsSlider->getValue()));
+	std::string lapsLabel (laps);
+
+	_lapsValue->setString(lapsLabel);
 }
 
 void RaceConf::createMenu() {
@@ -164,9 +219,10 @@ void RaceConf::createMenu() {
 }
 
 void RaceConf::startRace(Ref* pSender) {
-	UserDefault::getInstance()->setStringForKey("playerName",
-			_playerName->getText());
-	UserDefault::getInstance()->setFloatForKey("difficulty", _difficultySlider->getValue());
+	UserDefault::getInstance()->setStringForKey("playerName", _playerName->getText());
+	UserDefault::getInstance()->setIntegerForKey("difficulty", _difficultySlider->getValue());
+	UserDefault::getInstance()->setIntegerForKey("opponents", _opponentsSlider->getValue());
+	UserDefault::getInstance()->setIntegerForKey("laps", _lapsSlider->getValue());
 	auto raceScene = Race::createScene();
 	Director::getInstance()->replaceScene(raceScene);
 }

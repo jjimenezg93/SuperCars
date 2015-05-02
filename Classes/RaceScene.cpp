@@ -51,14 +51,25 @@ bool Race::init() {
 	this->addChild(_tileAuxiliarMap);
 
 	/*** CONFIGURATION VARIABLES ***/
-	//_speed = 6;
-	_speed = UserDefault::getInstance()->getFloatForKey("speed");
+	/*****
+	 * HOW TO GET USER NAME FROM RACECONF
+	char diff [50];
+	sprintf(diff, "diff = %f", UserDefault::getInstance()->getFloatForKey("difficulty"));
+	std::string diffLabel (diff);
+
+	auto userName = Label::createWithTTF(diffLabel, "fonts/squares_bold.ttf", 26);
+	userName->enableOutline(Color4B::BLACK, 2);
+	userName->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+
+	this->addChild(userName);
+	*****/
+	_speed = 12;		// calculate speed with difficulty and opponents
 	//CCLog("Speed: %f", _speed);
-	_difficulty = 4;
+	_difficulty = UserDefault::getInstance()->getIntegerForKey("difficulty");
 	_timeStopped = 0;
-	_laps = 4;
+	_laps = UserDefault::getInstance()->getIntegerForKey("laps");
 	_currentLap = 0;
-	_opponents = 0;
+	_opponents = UserDefault::getInstance()->getIntegerForKey("opponents");
 	_currentPosition = _opponents;
 
 
@@ -170,18 +181,6 @@ void Race::createMenu() {
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
 
-	/*****
-	 * HOW TO GET USER NAME FROM RACECONF*/
-	char diff [50];
-	sprintf(diff, "diff = %f", UserDefault::getInstance()->getFloatForKey("difficulty"));
-	std::string diffLabel (diff);
-
-	auto userName = Label::createWithTTF(diffLabel, "fonts/squares_bold.ttf", 26);
-	userName->enableOutline(Color4B::BLACK, 2);
-	userName->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
-
-	this->addChild(userName);
-	/*****/
 	lapLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
 	lapLabel->enableOutline(Color4B::BLACK, 2);
 	lapLabel->setAnchorPoint(Vec2(0,1));

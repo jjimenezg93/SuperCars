@@ -36,19 +36,22 @@ private:
 
 	EditBox* _playerName;
 	ControlSlider* _difficultySlider;
+	ControlSlider* _opponentsSlider;
+	ControlSlider* _lapsSlider;
 
-	short _difficulty;
-	short _laps;
-	short _opponents;
-
-	Label* _tempLabel;
+	Label* _difficultyValue;
+	Label* _opponentsValue;
+	Label* _lapsValue;
 
 	void createMenu();
 	void createConfMenu();
 
 	void startRace(Ref* pSender);
 	void backMainMenu(Ref* pSender);
-	void sliderUpdate(float delta);
+
+	void diffUpdate(float delta);
+	void oppUpdate(float delta);
+	void lapsUpdate(float delta);
 
 	//implement the "static create()" method manually
 	CREATE_FUNC(RaceConf);
