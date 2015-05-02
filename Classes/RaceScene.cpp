@@ -170,7 +170,20 @@ void Race::createMenu() {
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
 
+	/*****
+	 * HOW TO GET USER NAME FROM RACECONF*/
+	char diff [50];
+	sprintf(diff, "diff = %f", UserDefault::getInstance()->getFloatForKey("difficulty"));
+	std::string diffLabel (diff);
+
+	auto userName = Label::createWithTTF(diffLabel, "fonts/squares_bold.ttf", 26);
+	userName->enableOutline(Color4B::BLACK, 2);
+	userName->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+
+	this->addChild(userName);
+	/*****/
 	lapLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
+	lapLabel->enableOutline(Color4B::BLACK, 2);
 	lapLabel->setAnchorPoint(Vec2(0,1));
 	lapLabel->setPosition(Vec2(origin.x + lapLabel->getContentSize().width / 2,
 								origin.y + visibleSize.height - lapLabel->getContentSize().height / 2));
@@ -178,6 +191,7 @@ void Race::createMenu() {
 	updateLapsLabel();
 
 	posLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
+	posLabel->enableOutline(Color4B::BLACK, 2);
 	posLabel->setAnchorPoint(Vec2(0,1));
 	posLabel->setPosition(Vec2(origin.x + posLabel->getContentSize().width / 2,
 								origin.y + visibleSize.height - lapLabel->getContentSize().height));
