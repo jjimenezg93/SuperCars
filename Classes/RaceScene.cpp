@@ -63,13 +63,13 @@ bool Race::init() {
 
 	this->addChild(userName);
 	*****/
-	_speed = 12;		// calculate speed with difficulty and opponents
 	//CCLog("Speed: %f", _speed);
 	_difficulty = UserDefault::getInstance()->getIntegerForKey("difficulty");
 	_timeStopped = 0;
 	_laps = UserDefault::getInstance()->getIntegerForKey("laps");
 	_currentLap = 0;
-	_opponents = UserDefault::getInstance()->getIntegerForKey("opponents");
+	_opponents = UserDefault::getInstance()->getIntegerForKey("opponents") + 1;
+	_speed = _difficulty * _opponents;		// calculate speed with difficulty and opponents
 	_currentPosition = _opponents;
 
 

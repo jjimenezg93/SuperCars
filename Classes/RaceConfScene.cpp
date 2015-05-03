@@ -127,7 +127,7 @@ void RaceConf::createConfMenu() {
 			Vec2(origin.x + editBoxSize.width * 2,
 					origin.y + visibleSize.height - editBoxSize.height * 6));
 
-	_opponentsSlider->setMinimumValue(1.f);
+	_opponentsSlider->setMinimumValue(0.f);
 	_opponentsSlider->setMaximumValue(3.f);
 	this->schedule(schedule_selector(RaceConf::oppUpdate), 0.f);
 	this->addChild(_opponentsSlider);
