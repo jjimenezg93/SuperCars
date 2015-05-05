@@ -97,7 +97,7 @@ void RaceConf::createConfMenu() {
 					origin.y + visibleSize.height - editBoxSize.height * 4));
 
 	_difficultySlider->setMinimumValue(1.f);
-	_difficultySlider->setMaximumValue(5.f);
+	_difficultySlider->setMaximumValue(4.f);
 	this->schedule(schedule_selector(RaceConf::diffUpdate), 0.f);
 	this->addChild(_difficultySlider);
 

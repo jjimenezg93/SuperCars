@@ -68,8 +68,8 @@ bool Race::init() {
 	_timeStopped = 0;
 	_laps = UserDefault::getInstance()->getIntegerForKey("laps");
 	_currentLap = 0;
-	_opponents = UserDefault::getInstance()->getIntegerForKey("opponents") + 1;
-	_speed = _difficulty * _opponents;		// calculate speed with difficulty and opponents
+	_opponents = UserDefault::getInstance()->getIntegerForKey("opponents");
+	_speed = 4 + _difficulty * _opponents;		// calculate speed with difficulty and opponents
 	_currentPosition = _opponents;
 
 
@@ -107,8 +107,7 @@ bool Race::init() {
 void Race::scheduleAll() {
 	this->scheduleUpdate();
 	this->schedule(schedule_selector(Race::moveMap), (float) 0);
-	this->schedule(schedule_selector(Race::createObstacle),
-			(float) (_speed / _difficulty));
+	this->schedule(schedule_selector(Race::createObstacle),	0.8f);
 	this->schedule(schedule_selector(Race::checkLap), (float) 1.f);
 }
 
