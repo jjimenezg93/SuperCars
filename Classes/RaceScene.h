@@ -33,8 +33,6 @@ public:
 	cocos2d::Sprite* leftArrow;
 	cocos2d::Sprite* rightArrow;
 
-	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
-
 	void update(float delta);	// default scheduled method
 
 	void createObstacle(float delta);	//custom scheduled method. Adds random obstacles to the road
@@ -45,9 +43,6 @@ public:
 
 	void checkLap(float delta);
 
-	/** Managing obstacles **/
-	void moveObstacles(Vector<Sprite *> v);
-	void deleteObstacle(Sprite* s);
 
 private:
 	TMXTiledMap* _tileMap;
@@ -61,7 +56,13 @@ private:
 	short _opponents;
 	short _currentPosition;
 
-	Vector<Sprite *> _obstacles;
+	Vector<Sprite*> _obstacles;
+
+	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
+
+	/** Managing obstacles **/
+	void moveObstacles(Vector<Sprite*> v);
+	void deleteObstacle(Sprite* s);
 
 	bool onTouchBegan(Touch* touch, Event* event);
 
@@ -73,7 +74,8 @@ private:
 	void updatePosLabel();
 
 	//Checks if there is a collision between each obstacle on the road and the player
-	void checkCollisions(Vector<Sprite *> v);
+	void checkCollisions(Vector<Sprite*> v);
+	void checkDeletion(Vector<Sprite*> v);
 
 	void showEndRace(Ref* pSender);
 	void showRaceMenu(Ref* pSender);

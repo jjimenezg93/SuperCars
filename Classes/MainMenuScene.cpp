@@ -7,6 +7,7 @@
 
 #include "RaceConfScene.h"
 #include "MainMenuScene.h"
+#include "RankingMenuScene.h"
 #include <stdio.h>
 
 USING_NS_CC;
@@ -83,7 +84,8 @@ void MainMenu::playGame(Ref* pSender) {
 }
 
 void MainMenu::showRanking(Ref* pSender) {
-
+	auto rankingMenuScene = RankingMenu::createScene();
+	Director::getInstance()->replaceScene(rankingMenuScene);
 }
 
 void MainMenu::exitGame(Ref* pSender) {

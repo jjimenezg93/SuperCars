@@ -120,13 +120,9 @@ void Race::update(float dt) {
 	updatePosLabel();
 	moveObstacles(_obstacles);
 	checkCollisions(_obstacles);
+	checkDeletion(_obstacles);
 	if (!audio->isBackgroundMusicPlaying()){
 		audio->resumeBackgroundMusic();
-	}
-	for (auto obstacleToDelete : _obstacles) {
-		if (obstacleToDelete->getPositionY() < -100) {
-			deleteObstacle(obstacleToDelete);
-		}
 	}
 }
 
@@ -224,7 +220,7 @@ void Race::deleteObstacle(Sprite* s) {
 	this->removeChild(s, true);
 }
 
-void Race::moveObstacles(Vector<Sprite *> obstacles) {
+void Race::moveObstacles(Vector<Sprite*> obstacles) {
 	for (auto obstacle : obstacles) {
 		// TAG 1 = ROCKS; TAG 2 = LAP_LINE; TAG 3 = OPPONENTS; TAG 20 = OLD_LAP_LINE
 		if (obstacle->getTag() == 1) {
@@ -237,7 +233,7 @@ void Race::moveObstacles(Vector<Sprite *> obstacles) {
 
 
 
-void Race::checkCollisions(Vector<Sprite *> v) {
+void Race::checkCollisions(Vector<Sprite*> v) {
 	for (auto obstacle : v) {
 		if (player->getBoundingBox().intersectsRect(
 				obstacle->getBoundingBox())) {
@@ -261,6 +257,14 @@ void Race::checkCollisions(Vector<Sprite *> v) {
 				this->schedule(schedule_selector(Race::carStopped), 1.f);
 
 			}
+		}
+	}
+}
+
+void Race::checkDeletion(Vector<Sprite*> obstacles) {
+	for (auto obstacleToDelete : obstacles) {
+		if (obstacleToDelete->getPositionY() < -100) {
+			deleteObstacle(obstacleToDelete);
 		}
 	}
 }

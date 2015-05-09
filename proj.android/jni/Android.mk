@@ -16,6 +16,7 @@ LOCAL_SRC_FILES := hellocpp/main.cpp \
                    ../../Classes/RaceConfScene.cpp \
                    ../../Classes/RaceScene.cpp \
                    ../../Classes/RaceMenuScene.cpp \
+                   ../../Classes/RankingMenuScene.cpp \
                    ../../Classes/EndRaceScene.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes
