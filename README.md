@@ -1,6 +1,10 @@
 # SuperCars
 
 This repository starts at v0.1.2, due to conflicts in the synchronization of previous cocos2d-x and GitHub folders.
+
+Documentation (*doc/*) is written in **Spanish**.
+
+Source code written in **English**
 #### Author
 Julián Jiménez González - [jjimenezg93]
 
@@ -14,7 +18,7 @@ C++
 
 ___
 #### Current Version
-v0.1.4.1-beta
+v0.1.5.1-beta
 
 ___
 #### Environment
@@ -28,7 +32,8 @@ To develop this project, the following software is being used:
 Other Software:
 * Visual Paradigm 11.2
 * Adobe Photoshop CS6
-* Tiled
+* Tiled 0.11
+* Office 2013
 
 ___
 #### Requirements
