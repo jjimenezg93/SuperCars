@@ -77,17 +77,11 @@ bool Race::init() {
 	player = Sprite::create("audi_r8.png");
 
 	player->setAnchorPoint(Vec2(0.5, 0));
-	player->setPosition(Vec2(visibleSize.width / 2 + origin.x, origin.y));
+	player->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y));
 
 	this->addChild(player, 100);
 
-	/*Sprite* opponent = Sprite::create("opponent.png");
-
-	 opponent->setPosition(350,700);
-	 opponent->setTag(2);
-
-	 this->addChild(opponent);
-	 _obstacles.pushBack(opponent);*/
+	spawnOpponents();
 
 	createMenu();
 	createLapLine();
@@ -95,7 +89,6 @@ bool Race::init() {
 	this->createControls(origin, visibleSize);
 
 	audio = CocosDenshion::SimpleAudioEngine::getInstance();
-
 	audio->playBackgroundMusic("background_music.wav", true);
 	audio->setBackgroundMusicVolume(0.3f);
 
@@ -105,9 +98,11 @@ bool Race::init() {
 }
 
 void Race::scheduleAll() {
+	this->unscheduleAllSelectors();
 	this->scheduleUpdate();
 	this->schedule(schedule_selector(Race::moveMap), (float) 0);
-	this->schedule(schedule_selector(Race::createObstacle),	0.8f);
+	this->schedule(schedule_selector(Race::checkPosition), (float) 0);
+	this->schedule(schedule_selector(Race::createObstacle),	0.5f);
 	this->schedule(schedule_selector(Race::checkLap), (float) 1.f);
 }
 
@@ -141,6 +136,18 @@ void Race::createObstacle(float dt) {
 	_obstacles.pushBack(obstacle);
 }
 
+void Race::spawnOpponents() {
+	for (int i = 1; i <= _opponents; ++i) {
+		Sprite* opponent = Sprite::create("gallardo.png");
+
+		opponent->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + 2000 * i));
+		opponent->setTag(3);
+
+		this->addChild(opponent, 100);
+		_obstacles.pushBack(opponent);
+	}
+}
+
 void Race::checkLap(float dt) {
 	if (_currentLap == _laps) {
 		showEndRace(this);
@@ -152,11 +159,16 @@ void Race::carStopped(float dt) {
 	if (_timeStopped < 1) {
 		_timeStopped++;
 	} else {
+		//	set opponents to normal movement (tag 3)
+		for (auto opponent : _obstacles) {
+			if (opponent->getTag() == 4) {
+				opponent->setTag(3);
+			}
+		}
 		_timeStopped = 0;
 		_eventDispatcher->resumeEventListenersForTarget(leftArrow);
 		_eventDispatcher->resumeEventListenersForTarget(rightArrow);
-		scheduleAll();
-		this->unschedule(schedule_selector(Race::carStopped));
+		scheduleAll();	//this method unschedules all before scheduling main methods
 	}
 }
 
@@ -181,7 +193,7 @@ void Race::createMenu() {
 	lapLabel->setAnchorPoint(Vec2(0,1));
 	lapLabel->setPosition(Vec2(origin.x + lapLabel->getContentSize().width / 2,
 								origin.y + visibleSize.height - lapLabel->getContentSize().height / 2));
-	this->addChild(lapLabel);
+	this->addChild(lapLabel, 70);
 	updateLapsLabel();
 
 	posLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
@@ -189,7 +201,7 @@ void Race::createMenu() {
 	posLabel->setAnchorPoint(Vec2(0,1));
 	posLabel->setPosition(Vec2(origin.x + posLabel->getContentSize().width / 2,
 								origin.y + visibleSize.height - lapLabel->getContentSize().height));
-	this->addChild(posLabel);
+	this->addChild(posLabel, 70);
 	updatePosLabel();
 }
 
@@ -220,18 +232,39 @@ void Race::deleteObstacle(Sprite* s) {
 	this->removeChild(s, true);
 }
 
-void Race::moveObstacles(Vector<Sprite*> obstacles) {
-	for (auto obstacle : obstacles) {
+void Race::moveObstacles(Vector<Sprite*> v) {
+	for (auto obstacle : v) {
 		// TAG 1 = ROCKS; TAG 2 = LAP_LINE; TAG 3 = OPPONENTS; TAG 20 = OLD_LAP_LINE
 		if (obstacle->getTag() == 1) {
 			obstacle->setPositionY(obstacle->getPositionY() - _speed);
 		} else if (obstacle->getTag() == 2 || obstacle->getTag() == 20) {
 			obstacle->setPositionY(obstacle->getPositionY() - _speed);
+		} else if (obstacle->getTag() == 3 || obstacle->getTag() == 4) {	// opponents normal movement
+			obstacle->setPositionY(obstacle->getPositionY() - _speed / _difficulty);
 		}
 	}
 }
 
+void Race::moveInvOpponents(float dt) {
+	for (auto opponent : _obstacles) {
+		if (opponent->getTag() == 3 || opponent->getTag() == 4) {
+			opponent->setPositionY(opponent->getPositionY() + _speed);
+			checkOpponentCollisions(opponent);
+		}
+	}
+}
 
+void Race::checkOpponentCollisions(Sprite* v) {
+	for (auto opponent : _obstacles) {
+		if (v->getBoundingBox().intersectsRect(opponent->getBoundingBox())) {
+			CCLog("Opponent collisioned");
+			auto noMove = MoveBy::create(2, Vec2(0,0));
+			v->runAction(noMove);
+			// STOP V OPPONENT AND KEEP OTHERS RUNNING
+			// this->schedule(schedule_selector(Race::opponentStopped), (float) 0);
+		}
+	}
+}
 
 void Race::checkCollisions(Vector<Sprite*> v) {
 	for (auto obstacle : v) {
@@ -243,7 +276,7 @@ void Race::checkCollisions(Vector<Sprite*> v) {
 				createLapLine();
 				obstacle->setTag(20);
 				audio->playEffect("lap_complete.wav", false, 1.f, 0.f, 1.f);
-			} else if (obstacle->getTag() == 1 || obstacle->getTag() == 3) {
+			} else if (obstacle->getTag() == 1) {	// IF THE OBSTACLE IS A ROCK
 
 				// playEffect(source, loop, frequency, stereo effect, volume)
 				audio->playEffect("big-crash.wav", false, 1.f, 0.f, 1.f);
@@ -255,10 +288,37 @@ void Race::checkCollisions(Vector<Sprite*> v) {
 
 				this->unscheduleAllSelectors();
 				this->schedule(schedule_selector(Race::carStopped), 1.f);
+				this->schedule(schedule_selector(Race::moveInvOpponents), (float) 0);
+			} else if (obstacle->getTag() == 3 || obstacle->getTag() == 4) {	// IF THE OBSTACLE IS AN OPPONENT
 
+				// playEffect(source, loop, frequency, stereo effect, volume)
+				audio->playEffect("big-crash.wav", false, 1.f, 0.f, 1.f);
+
+				_eventDispatcher->pauseEventListenersForTarget(leftArrow);
+				_eventDispatcher->pauseEventListenersForTarget(rightArrow);
+
+				this->unscheduleAllSelectors();
+				this->schedule(schedule_selector(Race::carStopped), 1.f);
+				this->schedule(schedule_selector(Race::moveInvOpponents), (float) 0);
+				this->schedule(schedule_selector(Race::checkPosition), (float) 0);
 			}
 		}
+		checkOpponentCollisions(obstacle);
 	}
+}
+
+void Race::checkPosition(float dt) {
+	// TAG == 3 OPPONENT ABOVE, TAG == 4 OPPONENT BELOW
+
+	for (auto opponent : _obstacles) {
+			if (opponent->getTag() == 3 && opponent->getPositionY() < player->getPositionY()) {
+				_currentPosition -= 1;
+				opponent->setTag(4);
+			} else if (opponent->getTag() == 4 && opponent->getPositionY() > player->getPositionY()) {
+				_currentPosition += 1;
+				opponent->setTag(3);
+			}
+		}
 }
 
 void Race::checkDeletion(Vector<Sprite*> obstacles) {

@@ -41,8 +41,11 @@ public:
 
 	void moveMap(float delta);
 
-	void checkLap(float delta);
+	void moveInvOpponents(float delta);
 
+	void checkPosition(float delta);
+
+	void checkLap(float delta);
 
 private:
 	TMXTiledMap* _tileMap;
@@ -57,6 +60,8 @@ private:
 	short _currentPosition;
 
 	Vector<Sprite*> _obstacles;
+
+	void spawnOpponents();
 
 	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
 
@@ -75,6 +80,8 @@ private:
 
 	//Checks if there is a collision between each obstacle on the road and the player
 	void checkCollisions(Vector<Sprite*> v);
+	void checkOpponentCollisions(Sprite* v);
+
 	void checkDeletion(Vector<Sprite*> v);
 
 	void showEndRace(Ref* pSender);
