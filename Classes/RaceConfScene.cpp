@@ -128,7 +128,7 @@ void RaceConf::createConfMenu() {
 					origin.y + visibleSize.height - editBoxSize.height * 6));
 
 	_opponentsSlider->setMinimumValue(0.f);
-	_opponentsSlider->setMaximumValue(3.f);
+	_opponentsSlider->setMaximumValue(5.f);
 	this->schedule(schedule_selector(RaceConf::oppUpdate), 0.f);
 	this->addChild(_opponentsSlider);
 
@@ -220,8 +220,8 @@ void RaceConf::createMenu() {
 
 void RaceConf::startRace(Ref* pSender) {
 	UserDefault::getInstance()->setStringForKey("playerName", _playerName->getText());
-	UserDefault::getInstance()->setIntegerForKey("difficulty", _difficultySlider->getValue());
-	UserDefault::getInstance()->setIntegerForKey("opponents", _opponentsSlider->getValue());
+	UserDefault::getInstance()->setIntegerForKey("difficulty", (int) _difficultySlider->getValue());
+	UserDefault::getInstance()->setIntegerForKey("opponents", _opponentsSlider->getValue() + 1);
 	UserDefault::getInstance()->setIntegerForKey("laps", _lapsSlider->getValue());
 	auto raceScene = Race::createScene();
 	Director::getInstance()->replaceScene(raceScene);

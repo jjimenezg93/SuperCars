@@ -25,9 +25,12 @@ public:
 
 	Label* lapLabel;
 	Label* posLabel;
+	Label* timerLabel;
 
 	// playerPos = {0, 1, 2}, beeing 0 = left, 1 = center, 2 = right
 	short playerPos;
+
+	float time;
 
 	cocos2d::Sprite* player;
 	cocos2d::Sprite* leftArrow;
@@ -47,11 +50,13 @@ public:
 
 	void checkLap(float delta);
 
+	void timerMethod(float delta);
+
 private:
 	TMXTiledMap* _tileMap;
 	TMXTiledMap* _tileAuxiliarMap;
 
-	float _speed;
+	short _speed;
 	short _difficulty;
 	short _timeStopped;
 	short _laps;
@@ -60,6 +65,7 @@ private:
 	short _currentPosition;
 
 	Vector<Sprite*> _obstacles;
+	float _lapsTime[10];
 
 	void spawnOpponents();
 
