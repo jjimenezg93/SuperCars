@@ -14,7 +14,7 @@
 
 #define COCOS2D_DEBUG 1
 
-USING_NS_CC;
+using namespace cocos2d;
 
 Scene* Race::createScene() {
 	// 'scene' is an autorelease object
@@ -65,7 +65,7 @@ bool Race::init() {
 	*****/
 	//CCLog("Speed: %f", _speed);
 	time = 0;
-
+	_fastestLap = 60;
 
 	_difficulty = UserDefault::getInstance()->getIntegerForKey("difficulty");
 	_timeStopped = 0;
@@ -107,7 +107,7 @@ void Race::scheduleAll() {
 	this->schedule(schedule_selector(Race::moveMap), (float) 0);
 	this->schedule(schedule_selector(Race::checkPosition), (float) 0);
 	this->schedule(schedule_selector(Race::createObstacle),	0.5f);
-	this->schedule(schedule_selector(Race::checkLap), (float) 1.f);
+	this->schedule(schedule_selector(Race::checkLap), 1.f);
 }
 
 void Race::update(float dt) {
@@ -159,6 +159,7 @@ void Race::spawnOpponents() {
 
 void Race::checkLap(float dt) {
 	if (_currentLap == _laps) {
+		//checkCollisions(_obstacles);
 		this->unscheduleAllSelectors();
 		showEndRace(this);
 	}
@@ -280,6 +281,10 @@ void Race::checkCollisions(Vector<Sprite*> v) {
 			if (obstacle->getTag() == 2) { // IF THE OBSTACLE IS THE LAP LINE
 				if (_currentLap <= _laps){
 					_lapsTime[_currentLap] = time;
+					if (time < _fastestLap){
+						_fastestLap = time;
+						CCLog("New fastest lap: %.2f", _fastestLap);
+					}
 					CCLog("Lap %i: %.2f", _currentLap, time);
 					time = 0;
 				}
@@ -407,6 +412,20 @@ bool Race::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
 
 void Race::showEndRace(Ref* pSender) {
 	audio->end();
+
+	float fast = _lapsTime[0];
+	CCLog("lapsTime[0] = %.2f", _lapsTime[0]);
+	for (auto i : _lapsTime) {
+		if (i < fast && i > 0) {
+			fast = i;
+		}
+	}
+
+	UserDefault::getInstance()->setFloatForKey("raceFastestLap", fast);
+	CCLog("fast = %.2f", fast);
+	UserDefault::getInstance()->setFloatForKey("fastestLap", _fastestLap);
+	CCLog("fastest lap %.2f", _fastestLap);
+
 	auto endRaceScene = EndRace::createScene();
 	Director::getInstance()->replaceScene(endRaceScene);
 }

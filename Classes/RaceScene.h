@@ -63,6 +63,7 @@ private:
 	short _currentLap;
 	short _opponents;
 	short _currentPosition;
+	float _fastestLap;
 
 	Vector<Sprite*> _obstacles;
 	float _lapsTime[10];

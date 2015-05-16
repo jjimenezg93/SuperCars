@@ -44,6 +44,28 @@ bool RankingMenu::init() {
 }
 
 void RankingMenu::createMenu() {
+	auto fastestLapLabel = Label::createWithTTF("Fastest lap", "fonts/squares_bold.ttf", 32);
+	fastestLapLabel->setAnchorPoint(Vec2(0.5, 0.5));
+	fastestLapLabel->setPosition(
+			Vec2(origin.x + visibleSize.width/2,
+					origin.y + visibleSize.height/2));
+
+	this->addChild(fastestLapLabel);
+
+	auto fastestLapValue = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
+	fastestLapValue->setAnchorPoint(Vec2(0.5, 0.5));
+	fastestLapValue->setPosition(
+			Vec2(origin.x + visibleSize.width/2,
+					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height));
+
+	this->addChild(fastestLapValue);
+
+	char fastestText [50];
+	sprintf(fastestText, "%.2f s", UserDefault::getInstance()->getFloatForKey("fastestLap"));
+	std::string fastestLabelText (fastestText);
+
+	fastestLapValue->setString(fastestLabelText);
+
 	auto backButton = MenuItemImage::create("back_button.png",
 				"back_button_pressed.png", CC_CALLBACK_1(RankingMenu::backMainMenu, this));
 
@@ -54,6 +76,9 @@ void RankingMenu::createMenu() {
 	auto menu = Menu::create(backButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
+
+	/********** THIS IS TO CHECK FASTEST LAPS WORK ***************/
+	UserDefault::getInstance()->setFloatForKey("fastestLap", 10);
 }
 
 void RankingMenu::backMainMenu(Ref* pSender) {
