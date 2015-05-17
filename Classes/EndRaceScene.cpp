@@ -11,6 +11,8 @@
 
 USING_NS_CC;
 
+short margin = 15;
+
 Scene* EndRace::createScene() {
 	// 'scene' is an autorelease object
 	auto scene = Scene::create();
@@ -55,10 +57,27 @@ void EndRace::createMenu() {
 
 	this->addChild(raceFastestLapLabel);
 
+	// Race player name
+	auto raceNameText = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
+	raceNameText->setAnchorPoint(Vec2(1, 0.5));
+	raceNameText->setPosition(
+			Vec2(origin.x + visibleSize.width/2 - margin,
+					origin.y + visibleSize.height/2 - raceFastestLapLabel->getContentSize().height));
+
+	this->addChild(raceNameText);
+
+	char raceName [50];
+	sprintf(raceName, "%s", UserDefault::getInstance()->getStringForKey("playerName").c_str());
+	std::string raceLabelName (raceName);
+
+	raceNameText->setString(raceLabelName.c_str());
+	CCLog("race name: %s", UserDefault::getInstance()->getStringForKey("playerName").c_str());
+
+	// Race fastest lap value
 	auto raceFastestLapValue = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
-	raceFastestLapValue->setAnchorPoint(Vec2(0.5, 0.5));
+	raceFastestLapValue->setAnchorPoint(Vec2(0, 0.5));
 	raceFastestLapValue->setPosition(
-			Vec2(origin.x + visibleSize.width/2,
+			Vec2(origin.x + visibleSize.width/2 + margin,
 					origin.y + visibleSize.height/2 - raceFastestLapLabel->getContentSize().height));
 
 	this->addChild(raceFastestLapValue);
@@ -79,10 +98,27 @@ void EndRace::createMenu() {
 
 	this->addChild(fastestLapLabel);
 
+	// Total fastest player name
+	auto fastestLapName = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
+	fastestLapName->setAnchorPoint(Vec2(1, 0.5));
+	fastestLapName->setPosition(
+			Vec2(origin.x + visibleSize.width/2 - margin,
+					origin.y + visibleSize.height/4 - fastestLapLabel->getContentSize().height));
+
+	this->addChild(fastestLapName);
+
+	char fastestName [50];
+	sprintf(fastestName, "%s", UserDefault::getInstance()->getStringForKey("fastestPlayer").c_str());
+	std::string fastestLabelName (fastestName);
+
+	fastestLapName->setString(fastestLabelName.c_str());
+	CCLog("total fastest player: %s", UserDefault::getInstance()->getStringForKey("fastestPlayer").c_str());
+
+	// Total fastest lap value
 	auto fastestLapValue = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
-	fastestLapValue->setAnchorPoint(Vec2(0.5, 0.5));
+	fastestLapValue->setAnchorPoint(Vec2(0, 0.5));
 	fastestLapValue->setPosition(
-			Vec2(origin.x + visibleSize.width/2,
+			Vec2(origin.x + visibleSize.width/2 + margin,
 					origin.y + visibleSize.height/4 - fastestLapLabel->getContentSize().height));
 
 	this->addChild(fastestLapValue);

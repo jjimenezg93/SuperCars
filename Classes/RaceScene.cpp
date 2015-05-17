@@ -281,9 +281,11 @@ void Race::checkCollisions(Vector<Sprite*> v) {
 			if (obstacle->getTag() == 2) { // IF THE OBSTACLE IS THE LAP LINE
 				if (_currentLap <= _laps){
 					_lapsTime[_currentLap] = time;
-					if (time < _fastestLap){
+					if (time < _fastestLap && time != 0){
 						_fastestLap = time;
 						CCLog("New fastest lap: %.2f", _fastestLap);
+						UserDefault::getInstance()->setStringForKey("fastestPlayer", UserDefault::getInstance()->getStringForKey("playerName").c_str());
+						CCLog("fastest player %s", UserDefault::getInstance()->getStringForKey("fastestPlayer").c_str());
 					}
 					CCLog("Lap %i: %.2f", _currentLap, time);
 					time = 0;
@@ -425,6 +427,8 @@ void Race::showEndRace(Ref* pSender) {
 	CCLog("fast = %.2f", fast);
 	UserDefault::getInstance()->setFloatForKey("fastestLap", _fastestLap);
 	CCLog("fastest lap %.2f", _fastestLap);
+
+	this->unscheduleAllSelectors();
 
 	auto endRaceScene = EndRace::createScene();
 	Director::getInstance()->replaceScene(endRaceScene);

@@ -25,6 +25,7 @@ private:
 
 	void createMenu();
 
+	void resetRanking(Ref* pSender);
 	void backMainMenu(Ref* pSender);
 
 	//implement the "static create()" method manually

@@ -44,7 +44,7 @@ bool RankingMenu::init() {
 }
 
 void RankingMenu::createMenu() {
-	auto fastestLapLabel = Label::createWithTTF("Fastest lap", "fonts/squares_bold.ttf", 32);
+	auto fastestLapLabel = Label::createWithTTF("Fastest lap", "fonts/squares_bold.ttf", 36);
 	fastestLapLabel->setAnchorPoint(Vec2(0.5, 0.5));
 	fastestLapLabel->setPosition(
 			Vec2(origin.x + visibleSize.width/2,
@@ -52,8 +52,23 @@ void RankingMenu::createMenu() {
 
 	this->addChild(fastestLapLabel);
 
+	auto fastestLapName = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
+	fastestLapName->setAnchorPoint(Vec2(0, 0.5));
+	fastestLapName->setPosition(
+			Vec2(origin.x + visibleSize.width/4,
+					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height));
+
+	char fastestName [50];
+	sprintf(fastestName, "%s", UserDefault::getInstance()->getStringForKey("playerName").c_str());
+	std::string fastestLabelName (fastestName);
+
+	fastestLapName->setString(fastestLabelName.c_str());
+	CCLog("name ranking: %s", UserDefault::getInstance()->getStringForKey("playerName").c_str());
+
+	this->addChild(fastestLapName);
+
 	auto fastestLapValue = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
-	fastestLapValue->setAnchorPoint(Vec2(0.5, 0.5));
+	fastestLapValue->setAnchorPoint(Vec2(0, 0.5));
 	fastestLapValue->setPosition(
 			Vec2(origin.x + visibleSize.width/2,
 					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height));
@@ -66,6 +81,14 @@ void RankingMenu::createMenu() {
 
 	fastestLapValue->setString(fastestLabelText);
 
+
+	auto resetButton = MenuItemImage::create("reset_button.png",
+				"reset_button_pressed.png", CC_CALLBACK_1(RankingMenu::resetRanking, this));
+
+	resetButton->setAnchorPoint(Vec2(1,0));
+	resetButton->setPosition(Vec2(origin.x + visibleSize.width,
+						origin.y));
+
 	auto backButton = MenuItemImage::create("back_button.png",
 				"back_button_pressed.png", CC_CALLBACK_1(RankingMenu::backMainMenu, this));
 
@@ -73,12 +96,15 @@ void RankingMenu::createMenu() {
 	backButton->setPosition(Vec2(origin.x,
 						origin.y));
 
-	auto menu = Menu::create(backButton, NULL);
+	auto menu = Menu::create(resetButton, backButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
+}
 
-	/********** THIS IS TO CHECK FASTEST LAPS WORK ***************/
-	UserDefault::getInstance()->setFloatForKey("fastestLap", 10);
+void RankingMenu::resetRanking(Ref* pSender) {
+	UserDefault::getInstance()->setFloatForKey("fastestLap", 0);
+	auto rankingMenuScene = RankingMenu::createScene();
+	Director::getInstance()->replaceScene(rankingMenuScene);
 }
 
 void RankingMenu::backMainMenu(Ref* pSender) {
