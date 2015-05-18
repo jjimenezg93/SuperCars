@@ -77,7 +77,7 @@ bool Race::init() {
 
 
 	/*** PLAYER CREATION ***/
-	player = Sprite::create("audi_r8.png");
+	player = Sprite::create(UserDefault::getInstance()->getStringForKey("playerSprite"));
 
 	player->setAnchorPoint(Vec2(0.5, 0));
 	player->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y));

@@ -32,9 +32,9 @@ public:
 
 	float time;
 
-	cocos2d::Sprite* player;
-	cocos2d::Sprite* leftArrow;
-	cocos2d::Sprite* rightArrow;
+	Sprite* player;
+	Sprite* leftArrow;
+	Sprite* rightArrow;
 
 	void update(float delta);	// default scheduled method
 
