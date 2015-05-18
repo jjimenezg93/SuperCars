@@ -29,10 +29,14 @@ public:
 	Label* opponentsLabel;
 	Label* lapsLabel;
 
+	Sprite* leftArrow;
+	Sprite* rightArrow;
+
 private:
 	short _margin;
 
 	Sprite* _background;
+	Sprite* _car;
 
 	EditBox* _playerName;
 	ControlSlider* _difficultySlider;
@@ -42,6 +46,9 @@ private:
 	Label* _difficultyValue;
 	Label* _opponentsValue;
 	Label* _lapsValue;
+	Label* _carsLabel;
+
+	bool onTouchBegan(Touch* touch, Event* event);
 
 	void createMenu();
 	void createConfMenu();

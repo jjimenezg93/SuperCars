@@ -15,6 +15,9 @@ using namespace cocos2d;
 using namespace cocos2d::extension;
 using namespace ui;
 
+std::vector<std::string> _carFiles = {"audi_r8.png", "audi_r8_black.png", "gallardo.png"};
+short _carFilesPos = 0;
+
 Scene* RaceConf::createScene() {
 	// 'scene' is an autorelease object
 	auto scene = Scene::create();
@@ -169,6 +172,82 @@ void RaceConf::createConfMenu() {
 	_lapsValue->setPosition(_lapsSlider->getPosition() + Vec2(_margin, 0));
 
 	this->addChild(_lapsValue);
+
+	/***	CAR SELECTION	***/
+	_carsLabel = Label::createWithTTF("Car", "fonts/squares_bold.ttf", 32);
+	_carsLabel->setAnchorPoint(Vec2(0.5, 0.5));
+	_carsLabel->enableOutline(Color4B::BLACK, 2);
+	_carsLabel->setPosition(Vec2(origin.x + visibleSize.width/2,
+					origin.y + visibleSize.height - editBoxSize.height * 10));
+	this->addChild(_carsLabel);
+
+	_car = Sprite::create(_carFiles.at(_carFilesPos));
+	_car->setAnchorPoint(Vec2(0.5, 0.5));
+	_car->setPosition(Vec2(origin.x + visibleSize.width/2,
+			origin.y + visibleSize.height - editBoxSize.height * 12));
+	_car->setRotation(-90);
+
+	this->addChild(_car);
+
+	/*** LEFT ARROW ***/
+	leftArrow = Sprite::create("left_arrow.png");
+	leftArrow->setAnchorPoint(Vec2(0.5, 0.5));
+
+	leftArrow->setPosition(Vec2(origin.x + visibleSize.width/2 - _car->getContentSize().height,
+			origin.y + visibleSize.height - editBoxSize.height * 12));
+
+	this->addChild(leftArrow, 100);
+
+	/*** RIGHT ARROW ***/
+	rightArrow = Sprite::create("right_arrow.png");
+	rightArrow->setAnchorPoint(Vec2(0.5, 0.5));
+
+	rightArrow->setPosition(Vec2(origin.x + visibleSize.width/2 + _car->getContentSize().height,
+			origin.y + visibleSize.height - editBoxSize.height * 12));
+
+	this->addChild(rightArrow, 100);
+
+	leftArrow->setTag(1);
+	rightArrow->setTag(2);
+
+	/*** CONTROL LISTENER ***/
+	auto touchListener = EventListenerTouchOneByOne::create();
+	touchListener->setEnabled(true);
+	touchListener->setSwallowTouches(true);
+
+	touchListener->onTouchBegan = CC_CALLBACK_2(RaceConf::onTouchBegan, this);
+
+	// using SceneGraphPriority, when the Node is destroyed, the listener is removed automatically
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener,	leftArrow);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener->clone(), rightArrow);
+}
+
+bool RaceConf::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
+	Vec2 touchPoint = touch->getLocation();
+	Rect boundingBoxArrow = event->getCurrentTarget()->getBoundingBox();
+
+	if (boundingBoxArrow.containsPoint(touchPoint)
+			&& event->getCurrentTarget()->getTag() == 1) {
+		if (_carFilesPos <= 0){
+			_carFilesPos = _carFiles.size() - 1;
+			CCLog("size - 1 = %d", _carFilesPos);
+			_car->setTexture(_carFiles.at(_carFilesPos));
+			CCLog("file = %s", _carFiles.at(_carFilesPos).c_str());
+		} else {
+			_carFilesPos -= 1;
+			_car->setTexture(_carFiles.at(_carFilesPos));
+		}
+	} else if (boundingBoxArrow.containsPoint(touchPoint)
+			&& event->getCurrentTarget()->getTag() == 2) {
+		if (_carFilesPos >= _carFiles.size()-1){
+				_carFilesPos = 0;
+				_car->setTexture(_carFiles.at(_carFilesPos));
+			} else {
+				_carFilesPos += 1;
+				_car->setTexture(_carFiles.at(_carFilesPos));
+			}
+	}
+	return false;
 }
 
 void RaceConf::diffUpdate(float delta) {
@@ -223,6 +302,7 @@ void RaceConf::startRace(Ref* pSender) {
 	UserDefault::getInstance()->setIntegerForKey("difficulty", (int) _difficultySlider->getValue());
 	UserDefault::getInstance()->setIntegerForKey("opponents", _opponentsSlider->getValue() + 1);
 	UserDefault::getInstance()->setIntegerForKey("laps", _lapsSlider->getValue());
+	UserDefault::getInstance()->setStringForKey("playerSprite", _carFiles.at(_carFilesPos));
 	auto raceScene = Race::createScene();
 	Director::getInstance()->replaceScene(raceScene);
 }
