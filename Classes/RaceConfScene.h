@@ -33,6 +33,10 @@ public:
 	Sprite* rightArrow;
 
 private:
+
+	std::vector<std::string> _carFiles;
+	short _carFilesPos;
+
 	short _margin;
 
 	Sprite* _background;

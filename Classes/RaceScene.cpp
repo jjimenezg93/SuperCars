@@ -64,6 +64,9 @@ bool Race::init() {
 	this->addChild(userName);
 	*****/
 	//CCLog("Speed: %f", _speed);
+
+	_carFiles = {"audi_r8.png", "audi_r8_black.png", "gallardo.png"};
+
 	time = 0;
 	_fastestLap = 60;
 
@@ -137,7 +140,7 @@ void Race::moveMap(float dt) {
 
 void Race::createObstacle(float dt) {
 	Sprite* obstacle = Sprite::create("rock.png");
-	int positionX = round(rand() % 300 + 1) + 120; // RANDOM POSITIONS ALONG THE ROAD
+	int positionX = getRandomSpawnX(230, 420); // RANDOM POSITIONS ALONG THE ROAD
 	obstacle->setPosition(positionX, 1030);
 	CCLog("Obstacle X position %d", positionX);
 	obstacle->setTag(1);
@@ -147,9 +150,13 @@ void Race::createObstacle(float dt) {
 
 void Race::spawnOpponents() {
 	for (int i = 1; i < _opponents; ++i) {
-		Sprite* opponent = Sprite::create("gallardo.png");
 
-		opponent->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + 2000 * i));
+		short pos = (short) round(rand() % _carFiles.size());
+		Sprite* opponent = Sprite::create(_carFiles.at(pos));
+
+		short randomPosX = getRandomSpawnX(200, 400);
+
+		opponent->setPosition(Vec2(origin.x + randomPosX, origin.y + 2000 * i));
 		opponent->setTag(3);
 
 		this->addChild(opponent, 100);
@@ -157,9 +164,20 @@ void Race::spawnOpponents() {
 	}
 }
 
+short Race::getRandomSpawnX(short min, short max) {
+	bool loop = true;
+	short randomPosX = 0;
+	while(loop == true) {
+		randomPosX = (short) round(arc4random() % 400);
+		if (randomPosX >= min && randomPosX <= max) {
+			loop = false;
+		}
+	}
+	return randomPosX;
+}
+
 void Race::checkLap(float dt) {
 	if (_currentLap == _laps) {
-		//checkCollisions(_obstacles);
 		this->unscheduleAllSelectors();
 		showEndRace(this);
 	}

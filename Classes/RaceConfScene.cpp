@@ -15,9 +15,6 @@ using namespace cocos2d;
 using namespace cocos2d::extension;
 using namespace ui;
 
-std::vector<std::string> _carFiles = {"audi_r8.png", "audi_r8_black.png", "gallardo.png"};
-short _carFilesPos = 0;
-
 Scene* RaceConf::createScene() {
 	// 'scene' is an autorelease object
 	auto scene = Scene::create();
@@ -37,6 +34,10 @@ bool RaceConf::init() {
 	if (!Layer::init()) {
 		return false;
 	}
+
+
+	_carFiles = {"audi_r8.png", "audi_r8_black.png", "gallardo.png"};
+	_carFilesPos = 0;
 
 	origin = Director::getInstance()->getVisibleOrigin();
 	visibleSize = Director::getInstance()->getVisibleSize();

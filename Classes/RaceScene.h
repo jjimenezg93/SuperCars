@@ -53,6 +53,9 @@ public:
 	void timerMethod(float delta);
 
 private:
+
+	std::vector<std::string> _carFiles;
+
 	TMXTiledMap* _tileMap;
 	TMXTiledMap* _tileAuxiliarMap;
 
@@ -69,6 +72,7 @@ private:
 	float _lapsTime[10];
 
 	void spawnOpponents();
+	short getRandomSpawnX(short min, short max);
 
 	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
 
