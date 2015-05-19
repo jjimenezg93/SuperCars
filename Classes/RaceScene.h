@@ -44,6 +44,10 @@ public:
 
 	void moveMap(float delta);
 
+	void moveObstacles(float delta);
+
+	void moveOpponents(float delta);
+
 	void moveInvOpponents(float delta);
 
 	void checkPosition(float delta);
@@ -64,11 +68,12 @@ private:
 	short _timeStopped;
 	short _laps;
 	short _currentLap;
-	short _opponents;
+	short _numOpponents;
 	short _currentPosition;
 	float _fastestLap;
 
 	Vector<Sprite*> _obstacles;
+	Vector<Sprite*> _opponents;
 	float _lapsTime[10];
 
 	void spawnOpponents();
@@ -76,8 +81,6 @@ private:
 
 	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
 
-	/** Managing obstacles **/
-	void moveObstacles(Vector<Sprite*> v);
 	void deleteObstacle(Sprite* s);
 
 	bool onTouchBegan(Touch* touch, Event* event);
@@ -89,8 +92,12 @@ private:
 	void updateLapsLabel();
 	void updatePosLabel();
 
+	void avoidCollision(Sprite* s);
+
+	void changeXOpponent(Sprite* s);
+
 	//Checks if there is a collision between each obstacle on the road and the player
-	void checkCollisions(Vector<Sprite*> v);
+	void checkPlayerCollisions(Vector<Sprite*> v);
 	void checkOpponentCollisions(Sprite* v);
 
 	void checkDeletion(Vector<Sprite*> v);

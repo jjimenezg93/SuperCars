@@ -5,6 +5,15 @@
  *      Author: jjimenezg93
  */
 
+/******* SPRITES TAGS
+ * 1 = ROCKS
+ * 2 = LAP_LINE
+ * 3 = OPPONENT ABOVE
+ * 4 = OPPONENT BELOW
+ * 20 = OLD_LAP_LINE
+ */
+
+
 #include "RaceScene.h"
 #include "RaceMenuScene.h"
 #include "EndRaceScene.h"
@@ -50,21 +59,6 @@ bool Race::init() {
 	this->addChild(_tileMap);
 	this->addChild(_tileAuxiliarMap);
 
-	/*** CONFIGURATION VARIABLES ***/
-	/*****
-	 * HOW TO GET USER NAME FROM RACECONF
-	char diff [50];
-	sprintf(diff, "diff = %f", UserDefault::getInstance()->getFloatForKey("difficulty"));
-	std::string diffLabel (diff);
-
-	auto userName = Label::createWithTTF(diffLabel, "fonts/squares_bold.ttf", 26);
-	userName->enableOutline(Color4B::BLACK, 2);
-	userName->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
-
-	this->addChild(userName);
-	*****/
-	//CCLog("Speed: %f", _speed);
-
 	_carFiles = {"audi_r8.png", "audi_r8_black.png", "gallardo.png"};
 
 	time = 0;
@@ -74,9 +68,9 @@ bool Race::init() {
 	_timeStopped = 0;
 	_laps = UserDefault::getInstance()->getIntegerForKey("laps");
 	_currentLap = 0;
-	_opponents = UserDefault::getInstance()->getIntegerForKey("opponents");
-	_speed = (short) 4 + _difficulty * _opponents;
-	_currentPosition = _opponents;
+	_numOpponents = UserDefault::getInstance()->getIntegerForKey("opponents");
+	_speed = (short) 4 + _difficulty * _numOpponents;
+	_currentPosition = _numOpponents;
 
 
 	/*** PLAYER CREATION ***/
@@ -108,6 +102,8 @@ void Race::scheduleAll() {
 	this->scheduleUpdate();
 	this->schedule(schedule_selector(Race::timerMethod), (float) 0.01);
 	this->schedule(schedule_selector(Race::moveMap), (float) 0);
+	this->schedule(schedule_selector(Race::moveObstacles), (float) 0);
+	this->schedule(schedule_selector(Race::moveOpponents), (float) 0);
 	this->schedule(schedule_selector(Race::checkPosition), (float) 0);
 	this->schedule(schedule_selector(Race::createObstacle),	0.5f);
 	this->schedule(schedule_selector(Race::checkLap), 1.f);
@@ -119,8 +115,12 @@ void Race::update(float dt) {
 	} else if (_tileAuxiliarMap->getPositionY() <= -1024) {
 		_tileAuxiliarMap->setPositionY(1024);
 	}
-	moveObstacles(_obstacles);
-	checkCollisions(_obstacles);
+	for (auto obstacle : _obstacles) {
+		if (obstacle->getTag() == 3 || obstacle->getTag() == 4) {
+			checkOpponentCollisions(obstacle);
+		}
+	}
+	checkPlayerCollisions(_obstacles);
 	checkDeletion(_obstacles);
 	if (!audio->isBackgroundMusicPlaying()){
 		audio->resumeBackgroundMusic();
@@ -140,7 +140,7 @@ void Race::moveMap(float dt) {
 
 void Race::createObstacle(float dt) {
 	Sprite* obstacle = Sprite::create("rock.png");
-	int positionX = getRandomSpawnX(230, 420); // RANDOM POSITIONS ALONG THE ROAD
+	int positionX = getRandomSpawnX(215, 435); // RANDOM POSITIONS ALONG THE ROAD
 	obstacle->setPosition(positionX, 1030);
 	CCLog("Obstacle X position %d", positionX);
 	obstacle->setTag(1);
@@ -149,7 +149,7 @@ void Race::createObstacle(float dt) {
 }
 
 void Race::spawnOpponents() {
-	for (int i = 1; i < _opponents; ++i) {
+	for (int i = 1; i < _numOpponents; ++i) {
 
 		short pos = (short) round(rand() % _carFiles.size());
 		Sprite* opponent = Sprite::create(_carFiles.at(pos));
@@ -160,7 +160,7 @@ void Race::spawnOpponents() {
 		opponent->setTag(3);
 
 		this->addChild(opponent, 100);
-		_obstacles.pushBack(opponent);
+		_opponents.pushBack(opponent);
 	}
 }
 
@@ -251,59 +251,114 @@ void Race::updateLapsLabel() {
 
 void Race::updatePosLabel() {
 	char posText [50];
-	sprintf(posText, "Pos %d/%d", _currentPosition, _opponents);
+	sprintf(posText, "Pos %d/%d", _currentPosition, _numOpponents);
 	std::string posLabelText (posText);
 	posLabel->setString(posLabelText);
 }
 
-void Race::deleteObstacle(Sprite* s) {
-	_obstacles.eraseObject(s, false);
-	this->removeChild(s, true);
-}
-
-void Race::moveObstacles(Vector<Sprite*> v) {
-	for (auto obstacle : v) {
-		// TAG 1 = ROCKS; TAG 2 = LAP_LINE; TAG 3 = OPPONENTS; TAG 20 = OLD_LAP_LINE
+void Race::moveObstacles(float dt) {
+	for (auto obstacle : _obstacles) {
 		if (obstacle->getTag() == 1) {
 			obstacle->setPositionY(obstacle->getPositionY() - _speed);
 		} else if (obstacle->getTag() == 2 || obstacle->getTag() == 20) {
 			obstacle->setPositionY(obstacle->getPositionY() - _speed);
-		} else if (obstacle->getTag() == 3 || obstacle->getTag() == 4) {	// opponents normal movement
-			obstacle->setPositionY(obstacle->getPositionY() - (_speed - (_difficulty * 2)));
-			CCLog("_speed (opponent) = %d", (short) (_speed / _difficulty));
 		}
+	}
+}
+
+void Race::moveOpponents(float dt) {
+	for (auto opponent : _opponents) {
+		opponent->setPositionY(opponent->getPositionY() - (_speed - (_difficulty * 2)));
+		checkOpponentCollisions(opponent);
+		//avoidCollision(opponent);
 	}
 }
 
 void Race::moveInvOpponents(float dt) {
-	for (auto opponent : _obstacles) {
+	for (auto opponent : _opponents) {
 		if (opponent->getTag() == 3 || opponent->getTag() == 4) {
 			opponent->setPositionY(opponent->getPositionY() + _speed);
 			checkOpponentCollisions(opponent);
+			//avoidCollision(opponent);
 		}
 	}
 }
 
-void Race::checkOpponentCollisions(Sprite* v) {
-	for (auto opponent : _obstacles) {
-		if (v->getBoundingBox().intersectsRect(opponent->getBoundingBox())) {
-			CCLog("Opponent collisioned");
+void Race::avoidCollision(Sprite* s) {
+	for (auto obstacle : _obstacles) {
+		if ((abs(obstacle->getPositionY()) - s->getPositionY()) <= 200		// abs(x) = |x|
+				&& (abs(obstacle->getPositionX() - s->getPositionX()) <= 80)) {
+			changeXOpponent(s);
+			/*
+			if (s->getPositionX() <= visibleSize.width / 2) {
+				CCLog("posX opp prev = %f", s->getPositionX());
+				auto moveRight = MoveBy::create(0.2, Vec2(30, 0));
+				s->runAction(moveRight);
+				CCLog("posX opp after = %f", s->getPositionX());
+			} else if (s->getPositionX() >= visibleSize.width / 2) {
+				CCLog("posX opp prev = %f", s->getPositionX());
+				auto moveLeft = MoveBy::create(0.2, Vec2(-30, 0));
+				s->runAction(moveLeft);
+				CCLog("posX opp prev = %f", s->getPositionX());
+			}*/
 		}
 	}
 }
 
-void Race::checkCollisions(Vector<Sprite*> v) {
+void Race::changeXOpponent(Sprite* s) {
+	if (s->getPositionX() <= 200) {
+		auto moveCenter = MoveTo::create(0.2, Vec2(300, s->getPositionY()));
+		s->runAction(moveCenter);
+	} else if (s->getPositionX() >= 400) {
+		auto moveCenter = MoveTo::create(0.2, Vec2(300, s->getPositionY()));
+		s->runAction(moveCenter);
+	} else{
+		auto random = CCRANDOM_0_1();
+		if (random == 0) {
+			auto moveRight = MoveTo::create(0.2, Vec2(400, s->getPositionY()));
+			s->runAction(moveRight);
+		} else {
+			auto moveLeft = MoveTo::create(0.2, Vec2(200, s->getPositionY()));
+			s->runAction(moveLeft);
+		}
+	}
+}
+
+void Race::checkOpponentCollisions(Sprite* s) {
+	for (auto obstacle : _obstacles) {
+		if (obstacle->getTag() == 1 && s->getBoundingBox().intersectsRect(obstacle->getBoundingBox())) {
+			auto noMove = MoveTo::create(0., Vec2(s->getPositionX(), -_speed));
+			s->runAction(noMove);
+			CCLog("Opponent collisioned with obstacle");
+		}
+	}
+	for (auto opponent : _opponents) {
+		if (s->_ID != opponent->_ID
+				&& s->getBoundingBox().intersectsRect(opponent->getBoundingBox())) {
+			auto noMove = MoveTo::create(0.1, Vec2(s->getPositionX(), -_speed));
+			s->runAction(noMove);
+			CCLog("Opponent collisioned with another opponent");
+		}
+	}
+}
+
+void Race::checkPlayerCollisions(Vector<Sprite*> v) {
 	for (auto obstacle : v) {
 		if (player->getBoundingBox().intersectsRect(
 				obstacle->getBoundingBox())) {
 			if (obstacle->getTag() == 2) { // IF THE OBSTACLE IS THE LAP LINE
-				if (_currentLap <= _laps){
+				if (_currentLap <= _laps) {
 					_lapsTime[_currentLap] = time;
-					if (time < _fastestLap && time != 0){
+					if (time < _fastestLap && time != 0) {
 						_fastestLap = time;
 						CCLog("New fastest lap: %.2f", _fastestLap);
-						UserDefault::getInstance()->setStringForKey("fastestPlayer", UserDefault::getInstance()->getStringForKey("playerName").c_str());
-						CCLog("fastest player %s", UserDefault::getInstance()->getStringForKey("fastestPlayer").c_str());
+						UserDefault::getInstance()->setStringForKey(
+								"fastestPlayer",
+								UserDefault::getInstance()->getStringForKey(
+										"playerName").c_str());
+						CCLog("fastest player %s",
+								UserDefault::getInstance()->getStringForKey(
+										"fastestPlayer").c_str());
 					}
 					CCLog("Lap %i: %.2f", _currentLap, time);
 					time = 0;
@@ -313,7 +368,7 @@ void Race::checkCollisions(Vector<Sprite*> v) {
 				createLapLine();
 				obstacle->setTag(20);
 				audio->playEffect("lap_complete.wav", false, 1.f, 0.f, 1.f);
-			} else if (obstacle->getTag() == 1) {	// IF THE OBSTACLE IS A ROCK
+			} else if (obstacle->getTag() == 1) { // IF THE OBSTACLE IS A ROCK
 
 				// playEffect(source, loop, frequency, stereo effect, volume)
 				audio->playEffect("big-crash.wav", false, 1.f, 0.f, 1.f);
@@ -328,27 +383,31 @@ void Race::checkCollisions(Vector<Sprite*> v) {
 				this->schedule(schedule_selector(Race::carStopped), 1.f);
 				this->schedule(schedule_selector(Race::moveInvOpponents), (float) 0);
 				this->schedule(schedule_selector(Race::checkPosition), (float) 0);
-			} else if (obstacle->getTag() == 3 || obstacle->getTag() == 4) {	// IF THE OBSTACLE IS AN OPPONENT
-
-				// playEffect(source, loop, frequency, stereo effect, volume)
-				audio->playEffect("big-crash.wav", false, 1.f, 0.f, 1.f);
-
-				_eventDispatcher->pauseEventListenersForTarget(leftArrow);
-				_eventDispatcher->pauseEventListenersForTarget(rightArrow);
-
-				this->unscheduleAllSelectors();
-				this->schedule(schedule_selector(Race::timerMethod), (float) 0.01);
-				this->schedule(schedule_selector(Race::carStopped), 1.f);
-				this->schedule(schedule_selector(Race::moveInvOpponents), (float) 0);
-				this->schedule(schedule_selector(Race::checkPosition), (float) 0);
 			}
+		}
+	}
+	for (auto opponent : _opponents) {
+		if (player->getBoundingBox().intersectsRect(
+				opponent->getBoundingBox())) { // IF THE OBSTACLE IS AN OPPONENT
+
+			// playEffect(source, loop, frequency, stereo effect, volume)
+			audio->playEffect("big-crash.wav", false, 1.f, 0.f, 1.f);
+
+			_eventDispatcher->pauseEventListenersForTarget(leftArrow);
+			_eventDispatcher->pauseEventListenersForTarget(rightArrow);
+
+			this->unscheduleAllSelectors();
+			this->schedule(schedule_selector(Race::timerMethod), (float) 0.01);
+			this->schedule(schedule_selector(Race::carStopped), 1.f);
+			this->schedule(schedule_selector(Race::moveInvOpponents), (float) 0);
+			this->schedule(schedule_selector(Race::checkPosition), (float) 0);
 		}
 	}
 }
 
 void Race::checkPosition(float dt) {
 	// TAG == 3 OPPONENT ABOVE, TAG == 4 OPPONENT BELOW
-	for (auto opponent : _obstacles) {
+	for (auto opponent : _opponents) {
 			if (opponent->getTag() == 3 && opponent->getPositionY() < player->getPositionY()) {
 				_currentPosition -= 1;
 				opponent->setTag(4);
@@ -363,10 +422,15 @@ void Race::checkPosition(float dt) {
 
 void Race::checkDeletion(Vector<Sprite*> obstacles) {
 	for (auto obstacleToDelete : obstacles) {
-		if (obstacleToDelete->getTag() != 3 && obstacleToDelete->getTag() != 4 && obstacleToDelete->getPositionY() < -100) {
+		if (obstacleToDelete->getPositionY() < -100) {
 			deleteObstacle(obstacleToDelete);
 		}
 	}
+}
+
+void Race::deleteObstacle(Sprite* s) {
+	_obstacles.eraseObject(s, false);
+	this->removeChild(s, true);
 }
 
 void Race::createControls(Vec2 origin, Size visibleSize) {
