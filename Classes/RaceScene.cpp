@@ -59,7 +59,19 @@ bool Race::init() {
 	this->addChild(_tileMap);
 	this->addChild(_tileAuxiliarMap);
 
-	_carFiles = {"audi_r8.png", "audi_r8_black.png", "gallardo.png"};
+
+	/**********	DELETE USER'S CAR TEXTURE FROM ELIGIBLE TEXTURES	**********/
+	_carFiles.push_back("audi_r8.png");
+	_carFiles.push_back("audi_r8_black.png");
+	_carFiles.push_back("gallardo.png");
+	std::vector<std::string>::iterator begin = _carFiles.begin();
+	std::vector<std::string>::iterator end = _carFiles.end();
+	short cont = 0;
+	for (std::vector<std::string>::iterator it = begin; it != end; it++) {
+		if (UserDefault::getInstance()->getStringForKey("playerSprite") == *it) {
+			_carFiles.erase(it);
+		} else cont++;
+	}
 
 	time = 0;
 	_fastestLap = 60;
