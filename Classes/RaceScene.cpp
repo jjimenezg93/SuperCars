@@ -48,7 +48,7 @@ bool Race::init() {
 	//for future objects adjustement
 	origin = Director::getInstance()->getVisibleOrigin();
 	visibleSize = Director::getInstance()->getVisibleSize();
-	playerPos = 1;
+	_playerPos = 1;
 
 	/*** MAP ***/
 	_tileMap = TMXTiledMap::create("background.tmx");
@@ -73,11 +73,12 @@ bool Race::init() {
 		} else cont++;
 	}
 
-	time = 0;
+	_time = 0;
 	_fastestLap = 60;
 
 	_difficulty = UserDefault::getInstance()->getIntegerForKey("difficulty");
 	_timeStopped = 0;
+	_oppTimeStopped = 0;
 	_laps = UserDefault::getInstance()->getIntegerForKey("laps");
 	_currentLap = 0;
 	_numOpponents = UserDefault::getInstance()->getIntegerForKey("opponents");
@@ -86,12 +87,12 @@ bool Race::init() {
 
 
 	/*** PLAYER CREATION ***/
-	player = Sprite::create(UserDefault::getInstance()->getStringForKey("playerSprite"));
+	_player = Sprite::create(UserDefault::getInstance()->getStringForKey("playerSprite"));
 
-	player->setAnchorPoint(Vec2(0.5, 0));
-	player->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y));
+	_player->setAnchorPoint(Vec2(0.5, 0));
+	_player->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 8));
 
-	this->addChild(player, 100);
+	this->addChild(_player, 100);
 
 	spawnOpponents();
 
@@ -119,6 +120,8 @@ void Race::scheduleAll() {
 	this->schedule(schedule_selector(Race::checkPosition), (float) 0);
 	this->schedule(schedule_selector(Race::createObstacle),	0.5f);
 	this->schedule(schedule_selector(Race::checkLap), 1.f);
+	this->schedule(schedule_selector(Race::avoidCollision), (float) 0.5f);
+	this->schedule(schedule_selector(Race::checkOppIsOut), (float) 1.f);
 }
 
 void Race::update(float dt) {
@@ -127,10 +130,8 @@ void Race::update(float dt) {
 	} else if (_tileAuxiliarMap->getPositionY() <= -1024) {
 		_tileAuxiliarMap->setPositionY(1024);
 	}
-	for (auto obstacle : _obstacles) {
-		if (obstacle->getTag() == 3 || obstacle->getTag() == 4) {
-			checkOpponentCollisions(obstacle);
-		}
+	for (auto opponent : _opponents) {
+		checkOpponentCollisions(opponent);
 	}
 	checkPlayerCollisions(_obstacles);
 	checkDeletion(_obstacles);
@@ -140,9 +141,9 @@ void Race::update(float dt) {
 }
 
 void Race::timerMethod(float dt) {
-	time += dt;
-	__String* timeText = __String::createWithFormat("%.2f", time);
-	timerLabel->setString(timeText->getCString());
+	_time += dt;
+	__String* timeText = __String::createWithFormat("%.2f", _time);
+	_timerLabel->setString(timeText->getCString());
 }
 
 void Race::moveMap(float dt) {
@@ -197,11 +198,11 @@ void Race::checkLap(float dt) {
 
 void Race::carStopped(float dt) {
 	if (_timeStopped < 1) {
-		_timeStopped++;
+		++_timeStopped;
 	} else {
 		_timeStopped = 0;
-		_eventDispatcher->resumeEventListenersForTarget(leftArrow);
-		_eventDispatcher->resumeEventListenersForTarget(rightArrow);
+		_eventDispatcher->resumeEventListenersForTarget(_leftArrow);
+		_eventDispatcher->resumeEventListenersForTarget(_rightArrow);
 		scheduleAll();	//this method unschedules all before scheduling main methods
 	}
 }
@@ -222,28 +223,28 @@ void Race::createMenu() {
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
 
-	lapLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
-	lapLabel->enableOutline(Color4B::BLACK, 2);
-	lapLabel->setAnchorPoint(Vec2(0,1));
-	lapLabel->setPosition(Vec2(origin.x + lapLabel->getContentSize().width / 2,
-								origin.y + visibleSize.height - lapLabel->getContentSize().height / 2));
-	this->addChild(lapLabel, 70);
+	_lapLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
+	_lapLabel->enableOutline(Color4B::BLACK, 2);
+	_lapLabel->setAnchorPoint(Vec2(0,1));
+	_lapLabel->setPosition(Vec2(origin.x + _lapLabel->getContentSize().width / 2,
+								origin.y + visibleSize.height - _lapLabel->getContentSize().height / 2));
+	this->addChild(_lapLabel, 70);
 	updateLapsLabel();
 
-	posLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
-	posLabel->enableOutline(Color4B::BLACK, 2);
-	posLabel->setAnchorPoint(Vec2(0,1));
-	posLabel->setPosition(Vec2(origin.x + posLabel->getContentSize().width / 2,
-								origin.y + visibleSize.height - lapLabel->getContentSize().height));
-	this->addChild(posLabel, 70);
+	_posLabel = Label::createWithTTF("", "fonts/squares_bold.ttf", 26);
+	_posLabel->enableOutline(Color4B::BLACK, 2);
+	_posLabel->setAnchorPoint(Vec2(0,1));
+	_posLabel->setPosition(Vec2(origin.x + _posLabel->getContentSize().width / 2,
+								origin.y + visibleSize.height - _lapLabel->getContentSize().height));
+	this->addChild(_posLabel, 70);
 	updatePosLabel();
 
-	timerLabel = Label::createWithTTF("0", "fonts/squares_bold.ttf", 26);
-	timerLabel->enableOutline(Color4B::BLACK, 2);
-	timerLabel->setAnchorPoint(Vec2(0,1));
-	timerLabel->setPosition(Vec2(origin.x + timerLabel->getContentSize().width / 2,
-								origin.y + visibleSize.height - lapLabel->getContentSize().height * 2));
-	this->addChild(timerLabel, 70);
+	_timerLabel = Label::createWithTTF("0", "fonts/squares_bold.ttf", 26);
+	_timerLabel->enableOutline(Color4B::BLACK, 2);
+	_timerLabel->setAnchorPoint(Vec2(0,1));
+	_timerLabel->setPosition(Vec2(origin.x + _timerLabel->getContentSize().width / 2,
+								origin.y + visibleSize.height - _lapLabel->getContentSize().height * 2));
+	this->addChild(_timerLabel, 70);
 }
 
 void Race::createLapLine() {
@@ -258,14 +259,14 @@ void Race::updateLapsLabel() {
 	char lapsText [50];
 	sprintf(lapsText, "Laps %d/%d", _currentLap, _laps);
 	std::string lapLabelText (lapsText);
-	lapLabel->setString(lapLabelText);
+	_lapLabel->setString(lapLabelText);
 }
 
 void Race::updatePosLabel() {
 	char posText [50];
 	sprintf(posText, "Pos %d/%d", _currentPosition, _numOpponents);
 	std::string posLabelText (posText);
-	posLabel->setString(posLabelText);
+	_posLabel->setString(posLabelText);
 }
 
 void Race::moveObstacles(float dt) {
@@ -282,7 +283,6 @@ void Race::moveOpponents(float dt) {
 	for (auto opponent : _opponents) {
 		opponent->setPositionY(opponent->getPositionY() - (_speed - (_difficulty * 2)));
 		checkOpponentCollisions(opponent);
-		//avoidCollision(opponent);
 	}
 }
 
@@ -291,28 +291,41 @@ void Race::moveInvOpponents(float dt) {
 		if (opponent->getTag() == 3 || opponent->getTag() == 4) {
 			opponent->setPositionY(opponent->getPositionY() + _speed);
 			checkOpponentCollisions(opponent);
-			//avoidCollision(opponent);
 		}
 	}
 }
 
-void Race::avoidCollision(Sprite* s) {
-	for (auto obstacle : _obstacles) {
-		if ((abs(obstacle->getPositionY()) - s->getPositionY()) <= 200		// abs(x) = |x|
-				&& (abs(obstacle->getPositionX() - s->getPositionX()) <= 80)) {
-			changeXOpponent(s);
-			/*
-			if (s->getPositionX() <= visibleSize.width / 2) {
-				CCLog("posX opp prev = %f", s->getPositionX());
-				auto moveRight = MoveBy::create(0.2, Vec2(30, 0));
-				s->runAction(moveRight);
-				CCLog("posX opp after = %f", s->getPositionX());
-			} else if (s->getPositionX() >= visibleSize.width / 2) {
-				CCLog("posX opp prev = %f", s->getPositionX());
-				auto moveLeft = MoveBy::create(0.2, Vec2(-30, 0));
-				s->runAction(moveLeft);
-				CCLog("posX opp prev = %f", s->getPositionX());
-			}*/
+void Race::stoppedOpponents(float dt) {
+	if (_oppTimeStopped < 1) {
+		++_oppTimeStopped;
+	} else {
+		_oppTimeStopped = 0;
+		scheduleAll();	//this method unschedules all before scheduling main methods
+	}
+}
+
+void Race::moveCrashedOpponents(float dt) {
+	for (auto opponent : _opponents) {
+		opponent->setPositionY(opponent->getPositionY() - _speed);
+		checkOpponentCollisions(opponent);
+	}
+}
+
+void Race::avoidCollision(float dt) {
+	for (auto opponent : _opponents) {
+		for (auto obstacle : _obstacles) {
+			if ((abs(obstacle->getPositionY()) - opponent->getPositionY()) <= 200 // abs(x) = |x|
+			&& (abs(obstacle->getPositionX() - opponent->getPositionX()) <= 50)) {
+				changeXOpponent (opponent);
+			}
+		}
+	}
+}
+
+void Race::checkOppIsOut(float dt) {
+	for (auto opponent : _opponents) {
+		if (opponent->getPositionX() <= 150 || opponent->getPositionX() >= 450) {
+			changeXOpponent(opponent);
 		}
 	}
 }
@@ -338,31 +351,25 @@ void Race::changeXOpponent(Sprite* s) {
 
 void Race::checkOpponentCollisions(Sprite* s) {
 	for (auto obstacle : _obstacles) {
-		if (obstacle->getTag() == 1 && s->getBoundingBox().intersectsRect(obstacle->getBoundingBox())) {
-			auto noMove = MoveTo::create(0., Vec2(s->getPositionX(), -_speed));
-			s->runAction(noMove);
-			CCLog("Opponent collisioned with obstacle");
-		}
-	}
-	for (auto opponent : _opponents) {
-		if (s->_ID != opponent->_ID
-				&& s->getBoundingBox().intersectsRect(opponent->getBoundingBox())) {
-			auto noMove = MoveTo::create(0.1, Vec2(s->getPositionX(), -_speed));
-			s->runAction(noMove);
-			CCLog("Opponent collisioned with another opponent");
+		if (obstacle->getTag() == 1
+				&& s->getBoundingBox().intersectsRect(obstacle->getBoundingBox())) {
+			this->unschedule(schedule_selector(Race::moveOpponents));
+			this->schedule(schedule_selector(Race::moveCrashedOpponents), (float) 0);
+			this->schedule(schedule_selector(Race::stoppedOpponents), (float) 1.0f);
+			deleteObstacle(obstacle);
 		}
 	}
 }
 
 void Race::checkPlayerCollisions(Vector<Sprite*> v) {
 	for (auto obstacle : v) {
-		if (player->getBoundingBox().intersectsRect(
+		if (_player->getBoundingBox().intersectsRect(
 				obstacle->getBoundingBox())) {
 			if (obstacle->getTag() == 2) { // IF THE OBSTACLE IS THE LAP LINE
 				if (_currentLap <= _laps) {
-					_lapsTime[_currentLap] = time;
-					if (time < _fastestLap && time != 0) {
-						_fastestLap = time;
+					_lapsTime[_currentLap] = _time;
+					if (_time < _fastestLap && _time != 0) {
+						_fastestLap = _time;
 						CCLog("New fastest lap: %.2f", _fastestLap);
 						UserDefault::getInstance()->setStringForKey(
 								"fastestPlayer",
@@ -372,8 +379,8 @@ void Race::checkPlayerCollisions(Vector<Sprite*> v) {
 								UserDefault::getInstance()->getStringForKey(
 										"fastestPlayer").c_str());
 					}
-					CCLog("Lap %i: %.2f", _currentLap, time);
-					time = 0;
+					CCLog("Lap %i: %.2f", _currentLap, _time);
+					_time = 0;
 				}
 				_currentLap++;
 				updateLapsLabel();
@@ -387,32 +394,34 @@ void Race::checkPlayerCollisions(Vector<Sprite*> v) {
 
 				deleteObstacle(obstacle);
 
-				_eventDispatcher->pauseEventListenersForTarget(leftArrow);
-				_eventDispatcher->pauseEventListenersForTarget(rightArrow);
+				_eventDispatcher->pauseEventListenersForTarget(_leftArrow);
+				_eventDispatcher->pauseEventListenersForTarget(_rightArrow);
 
 				this->unscheduleAllSelectors();
 				this->schedule(schedule_selector(Race::timerMethod), (float) 0.01);
 				this->schedule(schedule_selector(Race::carStopped), 1.f);
 				this->schedule(schedule_selector(Race::moveInvOpponents), (float) 0);
 				this->schedule(schedule_selector(Race::checkPosition), (float) 0);
+				this->schedule(schedule_selector(Race::avoidCollision), (float) 0.5f);
 			}
 		}
 	}
 	for (auto opponent : _opponents) {
-		if (player->getBoundingBox().intersectsRect(
+		if (_player->getBoundingBox().intersectsRect(
 				opponent->getBoundingBox())) { // IF THE OBSTACLE IS AN OPPONENT
 
 			// playEffect(source, loop, frequency, stereo effect, volume)
 			audio->playEffect("big-crash.wav", false, 1.f, 0.f, 1.f);
 
-			_eventDispatcher->pauseEventListenersForTarget(leftArrow);
-			_eventDispatcher->pauseEventListenersForTarget(rightArrow);
+			_eventDispatcher->pauseEventListenersForTarget(_leftArrow);
+			_eventDispatcher->pauseEventListenersForTarget(_rightArrow);
 
 			this->unscheduleAllSelectors();
 			this->schedule(schedule_selector(Race::timerMethod), (float) 0.01);
 			this->schedule(schedule_selector(Race::carStopped), 1.f);
 			this->schedule(schedule_selector(Race::moveInvOpponents), (float) 0);
 			this->schedule(schedule_selector(Race::checkPosition), (float) 0);
+			this->schedule(schedule_selector(Race::avoidCollision), (float) 0.5f);
 		}
 	}
 }
@@ -420,11 +429,11 @@ void Race::checkPlayerCollisions(Vector<Sprite*> v) {
 void Race::checkPosition(float dt) {
 	// TAG == 3 OPPONENT ABOVE, TAG == 4 OPPONENT BELOW
 	for (auto opponent : _opponents) {
-			if (opponent->getTag() == 3 && opponent->getPositionY() < player->getPositionY()) {
+			if (opponent->getTag() == 3 && opponent->getPositionY() < _player->getPositionY()) {
 				_currentPosition -= 1;
 				opponent->setTag(4);
 				updatePosLabel();
-			} else if (opponent->getTag() == 4 && opponent->getPositionY() > player->getPositionY()) {
+			} else if (opponent->getTag() == 4 && opponent->getPositionY() > _player->getPositionY()) {
 				_currentPosition += 1;
 				opponent->setTag(3);
 				updatePosLabel();
@@ -449,27 +458,24 @@ void Race::createControls(Vec2 origin, Size visibleSize) {
 	/*** Directional arrows ***/
 
 	/*** LEFT ARROW ***/
-	leftArrow = Sprite::create("left_arrow.png");
-	leftArrow->setAnchorPoint(Vec2(0, 0));
+	_leftArrow = Sprite::create("left_arrow.png");
+	_leftArrow->setAnchorPoint(Vec2(0, 0));
 
-	leftArrow->setPosition(Vec2(origin.x, origin.y + visibleSize.height / 2));
+	_leftArrow->setPosition(Vec2(origin.x, origin.y + visibleSize.height / 2));
 
-	this->addChild(leftArrow, 100);
+	this->addChild(_leftArrow, 100);
 
 	/*** RIGHT ARROW ***/
-	rightArrow = Sprite::create("right_arrow.png");
-	rightArrow->setAnchorPoint(Vec2(0, 0));
+	_rightArrow = Sprite::create("right_arrow.png");
+	_rightArrow->setAnchorPoint(Vec2(0, 0));
 
-	rightArrow->setPosition(
-			Vec2(
-					origin.x + visibleSize.width
-							- rightArrow->getContentSize().width,
+	_rightArrow->setPosition(Vec2(origin.x + visibleSize.width - _rightArrow->getContentSize().width,
 					origin.y + visibleSize.height / 2));
 
-	this->addChild(rightArrow, 100);
+	this->addChild(_rightArrow, 100);
 
-	leftArrow->setTag(1);
-	rightArrow->setTag(2);
+	_leftArrow->setTag(1);
+	_rightArrow->setTag(2);
 
 	/*** CONTROL LISTENER ***/
 	auto touchListener = EventListenerTouchOneByOne::create();
@@ -477,13 +483,10 @@ void Race::createControls(Vec2 origin, Size visibleSize) {
 	touchListener->setSwallowTouches(true);
 
 	touchListener->onTouchBegan = CC_CALLBACK_2(Race::onTouchBegan, this);
-	//touchListener->onTouchEnded= CC_CALLBACK_2(Race::onTouchEnded, this);
 
 	// using SceneGraphPriority, when the Node is destroyed, the listener is removed automatically
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener,
-			leftArrow);
-	_eventDispatcher->addEventListenerWithSceneGraphPriority(
-			touchListener->clone(), rightArrow);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, _leftArrow);
+	_eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener->clone(), _rightArrow);
 }
 
 bool Race::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
@@ -492,16 +495,16 @@ bool Race::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
 
 	if (boundingBoxArrow.containsPoint(touchPoint)
 			&& event->getCurrentTarget()->getTag() == 1
-			&& (playerPos == 1 || playerPos == 2)) {
+			&& (_playerPos == 1 || _playerPos == 2)) {
 		auto moveLeft = MoveBy::create(0.25, Vec2(-100, 0));
-		player->runAction(moveLeft);
-		playerPos--;
+		_player->runAction(moveLeft);
+		_playerPos--;
 	} else if (boundingBoxArrow.containsPoint(touchPoint)
 			&& event->getCurrentTarget()->getTag() == 2
-			&& (playerPos == 0 || playerPos == 1)) {
+			&& (_playerPos == 0 || _playerPos == 1)) {
 		auto moveRight = MoveBy::create(0.25, Vec2(100, 0));
-		player->runAction(moveRight);
-		playerPos++;
+		_player->runAction(moveRight);
+		_playerPos++;
 	}
 	return false;
 }

@@ -23,18 +23,39 @@ public:
 
 	CocosDenshion::SimpleAudioEngine* audio;
 
-	Label* lapLabel;
-	Label* posLabel;
-	Label* timerLabel;
+private:
+
+	std::vector<std::string> _carFiles;
+
+	TMXTiledMap* _tileMap;
+	TMXTiledMap* _tileAuxiliarMap;
+
+	Sprite* _player;
+	Sprite* _leftArrow;
+	Sprite* _rightArrow;
+
+	Vector<Sprite*> _obstacles;
+	Vector<Sprite*> _opponents;
+	float _lapsTime[10];
+
+	Label* _lapLabel;
+	Label* _posLabel;
+	Label* _timerLabel;
+
+	short _speed;
+	short _checkOppIsOut;
+	short _difficulty;
+	short _timeStopped;
+	short _laps;
+	short _currentLap;
+	short _numOpponents;
+	short _currentPosition;
+	float _fastestLap;
 
 	// playerPos = {0, 1, 2}, beeing 0 = left, 1 = center, 2 = right
-	short playerPos;
+	short _playerPos;
 
-	float time;
-
-	Sprite* player;
-	Sprite* leftArrow;
-	Sprite* rightArrow;
+	float _time;
 
 	void update(float delta);	// default scheduled method
 
@@ -48,35 +69,24 @@ public:
 
 	void moveOpponents(float delta);
 
+	void stoppedOpponents(float delta);
+
+	void moveCrashedOpponents(float delta);
+
 	void moveInvOpponents(float delta);
 
 	void checkPosition(float delta);
+
+	void avoidCollision(float delta);
+
+	void checkOppIsOut(float delta);
 
 	void checkLap(float delta);
 
 	void timerMethod(float delta);
 
-private:
-
-	std::vector<std::string> _carFiles;
-
-	TMXTiledMap* _tileMap;
-	TMXTiledMap* _tileAuxiliarMap;
-
-	short _speed;
-	short _difficulty;
-	short _timeStopped;
-	short _laps;
-	short _currentLap;
-	short _numOpponents;
-	short _currentPosition;
-	float _fastestLap;
-
-	Vector<Sprite*> _obstacles;
-	Vector<Sprite*> _opponents;
-	float _lapsTime[10];
-
 	void spawnOpponents();
+
 	short getRandomSpawnX(short min, short max);
 
 	void createControls(Vec2 origin, Size visibleSize);	//creates control arrows and appropiate listeners
@@ -88,11 +98,11 @@ private:
 	void scheduleAll();		//method which schedules update(), moveMap() and createObstacle()
 
 	void createMenu();
+
 	void createLapLine();
 	void updateLapsLabel();
-	void updatePosLabel();
 
-	void avoidCollision(Sprite* s);
+	void updatePosLabel();
 
 	void changeXOpponent(Sprite* s);
 

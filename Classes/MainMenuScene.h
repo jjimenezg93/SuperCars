@@ -25,10 +25,6 @@ private:
 	Sprite* _background;
 	Sprite* _logo;
 
-	short _difficulty;
-	short _laps;
-	short _opponents;
-
 	void createMenu();
 
 	void playGame(Ref* pSender);
