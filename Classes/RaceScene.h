@@ -45,6 +45,7 @@ private:
 	short _speed;
 	short _checkOppIsOut;
 	short _difficulty;
+	short _oppTimeStopped;
 	short _timeStopped;
 	short _laps;
 	short _currentLap;
