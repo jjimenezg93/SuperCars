@@ -53,16 +53,9 @@ bool RankingMenu::init() {
 void RankingMenu::loadJSON() {
 	Document fastestLaps;
 
-	FILE* file = fopen("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
+	FILE* file = fopen("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
 	FileStream fs(file);
 	fastestLaps.ParseStream<0>(fs);
-
-	std::string fullPath = FileUtils::getInstance()->fullPathForFilename("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json");
-
-	std::string str = FileUtils::getInstance()->getStringFromFile(fullPath);
-
-	fastestLaps.Parse<0>(str.c_str());
-	CCLog("json End = %s", fastestLaps.GetString());
 
 	rapidjson::Value::MemberIterator itr;
 	short cont = 1;
@@ -79,21 +72,15 @@ void RankingMenu::loadJSON() {
 		}
 		++cont;
 	}
-
+	fclose(file);
 }
 
 void RankingMenu::createMenu() {
 	Document fastestLaps;
 
-	FILE* file = fopen("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
+	FILE* file = fopen("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
 	FileStream fs(file);
 	fastestLaps.ParseStream<0>(fs);
-
-	std::string fullPath = FileUtils::getInstance()->fullPathForFilename("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json");
-
-	std::string str = FileUtils::getInstance()->getStringFromFile(fullPath);
-
-	fastestLaps.Parse<0>(str.c_str());
 
 	auto fastestLapLabel = Label::createWithTTF("Fastest lap", "fonts/squares_bold.ttf", 36);
 	fastestLapLabel->setAnchorPoint(Vec2(0.5, 0.5));
@@ -111,8 +98,8 @@ void RankingMenu::createMenu() {
 					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height));
 
 	char fastestName [50];
-	sprintf(fastestName, "%s", UserDefault::getInstance()->getStringForKey("playerName").c_str());
-	//sprintf(fastestName, "%s", fastestLaps[_firstName.c_str()].GetString());
+	//sprintf(fastestName, "%s", UserDefault::getInstance()->getStringForKey("playerName").c_str());
+	sprintf(fastestName, "%s", _firstName.c_str());
 	std::string fastestLabelName (fastestName);
 
 	fastestLapName->setString(fastestLabelName.c_str());
@@ -128,8 +115,8 @@ void RankingMenu::createMenu() {
 	this->addChild(fastestLapValue);
 
 	char fastestText [50];
-	sprintf(fastestText, "%.2f s", UserDefault::getInstance()->getFloatForKey("fastestLap"));
-	//sprintf(fastestText, "%.2f s", fastestLaps[_firstName.c_str()].GetDouble());
+	//sprintf(fastestText, "%.2f s", UserDefault::getInstance()->getFloatForKey("fastestLap"));
+	sprintf(fastestText, "%.2f s", fastestLaps[_firstName.c_str()].GetDouble());
 	std::string fastestLabelText (fastestText);
 
 	fastestLapValue->setString(fastestLabelText);
@@ -143,7 +130,7 @@ void RankingMenu::createMenu() {
 					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height * 2));
 
 	char fastestName2[50];
-	sprintf(fastestName2, "%s",	UserDefault::getInstance()->getStringForKey("playerName").c_str());
+	sprintf(fastestName2, "%s",	_secondName.c_str());
 	std::string fastestLabelName2(fastestName2);
 
 	fastestLapName2->setString(fastestLabelName2.c_str());
@@ -160,7 +147,7 @@ void RankingMenu::createMenu() {
 	this->addChild(fastestLapValue2);
 
 	char fastestText2[50];
-	sprintf(fastestText2, "%.2f s", UserDefault::getInstance()->getFloatForKey("fastestLap"));
+	sprintf(fastestText2, "%.2f s", fastestLaps[_secondName.c_str()].GetDouble());
 	std::string fastestLabelText2(fastestText2);
 
 	fastestLapValue2->setString(fastestLabelText2);
@@ -173,8 +160,7 @@ void RankingMenu::createMenu() {
 					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height * 3));
 
 	char fastestName3[50];
-	sprintf(fastestName3, "%s",
-			UserDefault::getInstance()->getStringForKey("playerName").c_str());
+	sprintf(fastestName3, "%s", _thirdName.c_str());
 	std::string fastestLabelName3(fastestName3);
 
 	fastestLapName3->setString(fastestLabelName3.c_str());
@@ -190,8 +176,7 @@ void RankingMenu::createMenu() {
 	this->addChild(fastestLapValue3);
 
 	char fastestText3[50];
-	sprintf(fastestText3, "%.2f s",
-			UserDefault::getInstance()->getFloatForKey("fastestLap"));
+	sprintf(fastestText3, "%.2f s", fastestLaps[_thirdName.c_str()].GetDouble());
 	std::string fastestLabelText3(fastestText3);
 
 	fastestLapValue3->setString(fastestLabelText3);
@@ -214,9 +199,19 @@ void RankingMenu::createMenu() {
 	auto menu = Menu::create(resetButton, backButton, NULL);
 	menu->setPosition(Vec2::ZERO);
 	this->addChild(menu, 10);
+
+	fclose(file);
 }
 
 void RankingMenu::resetRanking(Ref* pSender) {
+	Document fastestLaps;
+
+	FILE* fileOpen = fopen("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "w");
+
+	fastestLaps.SetObject();
+
+	fclose(fileOpen);
+
 	UserDefault::getInstance()->setFloatForKey("fastestLap", 0);
 	auto rankingMenuScene = RankingMenu::createScene();
 	Director::getInstance()->replaceScene(rankingMenuScene);

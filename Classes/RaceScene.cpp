@@ -22,9 +22,10 @@
 #include <stdio.h>
 #include "json/document.h"
 #include "json/filestream.h"
-#include "json/rapidjson.h"
-#include "json/writer.h"
+#include "json/prettywriter.h"
 #include "json/stringbuffer.h"
+#include <unistd.h>
+#include <cstdio>
 
 #define COCOS2D_DEBUG 1
 
@@ -530,29 +531,39 @@ void Race::showEndRace(Ref* pSender) {
 	}
 
 	/*** JSON ***/
-	FILE* fileOpen = fopen("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "w");
-	FileStream fs(fileOpen);
-	fastestLaps.ParseStream<0>(fs);
+	auto path = FileUtils::getInstance()->getWritablePath();
+	CCLog("path = %s", path.c_str());
 
-	fastestLaps.SetObject();
+	if(FileUtils::sharedFileUtils()->isFileExist("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json")){
+		CCLog("file exists");
+		FILE* fileOpen = fopen("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
+		FileStream fs(fileOpen);
+		fastestLaps.ParseStream<0>(fs);
+		fclose(fileOpen);
+	}else{
+		fastestLaps.SetObject();
+	}
 	Document::AllocatorType& allocator = fastestLaps.GetAllocator();
-	fastestLaps.AddMember(UserDefault::getInstance()->getStringForKey("playerName").c_str(), fast, allocator);
-	CCLog("%s", fastestLaps.GetString());
+
+	if (fastestLaps.HasMember(UserDefault::getInstance()->getStringForKey("playerName").c_str())){
+		if (fast < fastestLaps[UserDefault::getInstance()->getStringForKey("playerName").c_str()].GetDouble()) {
+			fastestLaps[UserDefault::getInstance()->getStringForKey("playerName").c_str()] = fast;
+		}
+	} else {
+		fastestLaps.AddMember(UserDefault::getInstance()->getStringForKey("playerName").c_str(), fast, allocator);
+	}
 
 	StringBuffer buffer;
 	Writer<StringBuffer> writer (buffer);
 	fastestLaps.Accept(writer);
-	FILE* file = fopen("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "w");
+	FILE* file = fopen("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "w");
 	if (file) {
 		fputs(buffer.GetString(), file);
-		CCLog("json Race = %s", buffer.GetString());
 		fclose(file);
 	}
 
 	UserDefault::getInstance()->setFloatForKey("raceFastestLap", fast);
 	CCLog("fast = %.2f", fast);
-	UserDefault::getInstance()->setFloatForKey("fastestLap", _fastestLap);
-	CCLog("fastest lap %.2f", _fastestLap);
 
 	this->unscheduleAllSelectors();
 
