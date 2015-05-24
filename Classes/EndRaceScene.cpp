@@ -8,8 +8,14 @@
 #include "MainMenuScene.h"
 #include "EndRaceScene.h"
 #include <stdio.h>
+#include "json/document.h"
+#include "json/filestream.h"
+#include "json/rapidjson.h"
+#include "json/writer.h"
+#include "json/stringbuffer.h"
 
-USING_NS_CC;
+using namespace cocos2d;
+using namespace rapidjson;
 
 short margin = 15;
 
@@ -48,6 +54,20 @@ bool EndRace::init() {
 
 void EndRace::createMenu() {
 
+	/***	JSON	***/
+	Document fastestLaps;
+
+	FILE* file = fopen("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
+	FileStream fs(file);
+	fastestLaps.ParseStream<0>(fs);
+
+	std::string fullPath = FileUtils::getInstance()->fullPathForFilename("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json");
+
+	std::string str = FileUtils::getInstance()->getStringFromFile(fullPath);
+
+	fastestLaps.Parse<0>(str.c_str());
+	CCLog("json End = %s", fastestLaps.GetString());
+
 	/*** RACE FASTEST LAP ***/
 	auto raceFastestLapLabel = Label::createWithTTF("Race fastest lap", "fonts/squares_bold.ttf", 32);
 	raceFastestLapLabel->setAnchorPoint(Vec2(0.5, 0.5));
@@ -84,6 +104,8 @@ void EndRace::createMenu() {
 
 	char raceFastestText [50];
 	sprintf(raceFastestText, "%.2f s", UserDefault::getInstance()->getFloatForKey("raceFastestLap"));
+	//CCLog("jugador %s", fastestLaps["JULI"].GetString());
+	//sprintf(raceFastestText, "%s s", fastestLaps["JULI"].GetString());
 	std::string raceFastestLabelText (raceFastestText);
 
 	raceFastestLapValue->setString(raceFastestLabelText);

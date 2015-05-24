@@ -20,10 +20,18 @@
 #include <time.h>
 #include "SimpleAudioEngine.h"
 #include <stdio.h>
+#include "json/document.h"
+#include "json/filestream.h"
+#include "json/rapidjson.h"
+#include "json/writer.h"
+#include "json/stringbuffer.h"
 
 #define COCOS2D_DEBUG 1
 
 using namespace cocos2d;
+using namespace rapidjson;
+
+Document fastestLaps;
 
 Scene* Race::createScene() {
 	// 'scene' is an autorelease object
@@ -382,6 +390,7 @@ void Race::checkPlayerCollisions(Vector<Sprite*> v) {
 					CCLog("Lap %i: %.2f", _currentLap, _time);
 					_time = 0;
 				}
+
 				_currentLap++;
 				updateLapsLabel();
 				createLapLine();
@@ -518,6 +527,23 @@ void Race::showEndRace(Ref* pSender) {
 		if (i < fast && i > 0) {
 			fast = i;
 		}
+	}
+
+	/*** JSON ***/
+
+	fastestLaps.SetObject();
+	Document::AllocatorType& allocator = fastestLaps.GetAllocator();
+	fastestLaps.AddMember(UserDefault::getInstance()->getStringForKey("playerName").c_str(), fast, allocator);
+	CCLog("%s", fastestLaps.GetString());
+
+	StringBuffer buffer;
+	Writer<StringBuffer> writer (buffer);
+	fastestLaps.Accept(writer);
+	FILE* file = fopen("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "w");
+	if (file) {
+		fputs(buffer.GetString(), file);
+		CCLog("json Race = %s", buffer.GetString());
+		fclose(file);
 	}
 
 	UserDefault::getInstance()->setFloatForKey("raceFastestLap", fast);
