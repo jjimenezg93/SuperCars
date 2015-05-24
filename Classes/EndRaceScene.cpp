@@ -103,9 +103,7 @@ void EndRace::createMenu() {
 	this->addChild(raceFastestLapValue);
 
 	char raceFastestText [50];
-	sprintf(raceFastestText, "%.2f s", UserDefault::getInstance()->getFloatForKey("raceFastestLap"));
-	//CCLog("jugador %s", fastestLaps["JULI"].GetString());
-	//sprintf(raceFastestText, "%s s", fastestLaps["JULI"].GetString());
+	sprintf(raceFastestText, "%.2f s", fastestLaps[UserDefault::getInstance()->getStringForKey("playerName").c_str()].GetDouble());
 	std::string raceFastestLabelText (raceFastestText);
 
 	raceFastestLapValue->setString(raceFastestLabelText);

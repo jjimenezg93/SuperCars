@@ -23,7 +23,13 @@ public:
 private:
 	Sprite* _background;
 
+	std::string _firstName;
+	std::string _secondName;
+	std::string _thirdName;
+
 	void createMenu();
+
+	void loadJSON();
 
 	void resetRanking(Ref* pSender);
 	void backMainMenu(Ref* pSender);

@@ -530,6 +530,9 @@ void Race::showEndRace(Ref* pSender) {
 	}
 
 	/*** JSON ***/
+	FILE* fileOpen = fopen("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "w");
+	FileStream fs(fileOpen);
+	fastestLaps.ParseStream<0>(fs);
 
 	fastestLaps.SetObject();
 	Document::AllocatorType& allocator = fastestLaps.GetAllocator();

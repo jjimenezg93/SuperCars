@@ -7,8 +7,14 @@
 
 #include "RankingMenuScene.h"
 #include "MainMenuScene.h"
+#include "json/document.h"
+#include "json/filestream.h"
+#include "json/rapidjson.h"
+#include "json/writer.h"
+#include "json/stringbuffer.h"
 
-USING_NS_CC;
+using namespace cocos2d;
+using namespace rapidjson;
 
 Scene* RankingMenu::createScene() {
 	// 'scene' is an autorelease object
@@ -38,20 +44,66 @@ bool RankingMenu::init() {
 	_background->setPosition(origin.x, origin.y);
 	this->addChild(_background);
 
+	loadJSON();
 	createMenu();
 
 	return true;
 }
 
+void RankingMenu::loadJSON() {
+	Document fastestLaps;
+
+	FILE* file = fopen("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
+	FileStream fs(file);
+	fastestLaps.ParseStream<0>(fs);
+
+	std::string fullPath = FileUtils::getInstance()->fullPathForFilename("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json");
+
+	std::string str = FileUtils::getInstance()->getStringFromFile(fullPath);
+
+	fastestLaps.Parse<0>(str.c_str());
+	CCLog("json End = %s", fastestLaps.GetString());
+
+	rapidjson::Value::MemberIterator itr;
+	short cont = 1;
+	for (itr = fastestLaps.MemberonBegin(); itr != fastestLaps.MemberonEnd(); ++itr) {
+		if (cont == 1){
+			_firstName = itr->name.GetString();
+			CCLog("name1 = %s", _firstName.c_str());
+		} else if (cont == 2){
+			_secondName = itr->name.GetString();
+			CCLog("name2 = %s", _secondName.c_str());
+		} else if (cont == 3) {
+			_thirdName = itr->name.GetString();
+			CCLog("name3 = %s", _thirdName.c_str());
+		}
+		++cont;
+	}
+
+}
+
 void RankingMenu::createMenu() {
+	Document fastestLaps;
+
+	FILE* file = fopen("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
+	FileStream fs(file);
+	fastestLaps.ParseStream<0>(fs);
+
+	std::string fullPath = FileUtils::getInstance()->fullPathForFilename("data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json");
+
+	std::string str = FileUtils::getInstance()->getStringFromFile(fullPath);
+
+	fastestLaps.Parse<0>(str.c_str());
+
 	auto fastestLapLabel = Label::createWithTTF("Fastest lap", "fonts/squares_bold.ttf", 36);
 	fastestLapLabel->setAnchorPoint(Vec2(0.5, 0.5));
 	fastestLapLabel->setPosition(
 			Vec2(origin.x + visibleSize.width/2,
-					origin.y + visibleSize.height/2));
+					visibleSize.height - visibleSize.height/4));
 
 	this->addChild(fastestLapLabel);
 
+	/****	FIRST	****/
 	auto fastestLapName = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
 	fastestLapName->setAnchorPoint(Vec2(0, 0.5));
 	fastestLapName->setPosition(
@@ -60,10 +112,10 @@ void RankingMenu::createMenu() {
 
 	char fastestName [50];
 	sprintf(fastestName, "%s", UserDefault::getInstance()->getStringForKey("playerName").c_str());
+	//sprintf(fastestName, "%s", fastestLaps[_firstName.c_str()].GetString());
 	std::string fastestLabelName (fastestName);
 
 	fastestLapName->setString(fastestLabelName.c_str());
-	CCLog("name ranking: %s", UserDefault::getInstance()->getStringForKey("playerName").c_str());
 
 	this->addChild(fastestLapName);
 
@@ -77,11 +129,74 @@ void RankingMenu::createMenu() {
 
 	char fastestText [50];
 	sprintf(fastestText, "%.2f s", UserDefault::getInstance()->getFloatForKey("fastestLap"));
+	//sprintf(fastestText, "%.2f s", fastestLaps[_firstName.c_str()].GetDouble());
 	std::string fastestLabelText (fastestText);
 
 	fastestLapValue->setString(fastestLabelText);
 
+	/****	SECOND	****/
+	auto fastestLapName2 = Label::createWithTTF("", "fonts/squares_bold.ttf",
+			32);
+	fastestLapName2->setAnchorPoint(Vec2(0, 0.5));
+	fastestLapName2->setPosition(
+			Vec2(origin.x + visibleSize.width / 4,
+					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height * 2));
 
+	char fastestName2[50];
+	sprintf(fastestName2, "%s",	UserDefault::getInstance()->getStringForKey("playerName").c_str());
+	std::string fastestLabelName2(fastestName2);
+
+	fastestLapName2->setString(fastestLabelName2.c_str());
+
+	this->addChild(fastestLapName2);
+
+	auto fastestLapValue2 = Label::createWithTTF("", "fonts/squares_bold.ttf",
+			32);
+	fastestLapValue2->setAnchorPoint(Vec2(0, 0.5));
+	fastestLapValue2->setPosition(
+			Vec2(origin.x + visibleSize.width / 2,
+					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height * 2));
+
+	this->addChild(fastestLapValue2);
+
+	char fastestText2[50];
+	sprintf(fastestText2, "%.2f s", UserDefault::getInstance()->getFloatForKey("fastestLap"));
+	std::string fastestLabelText2(fastestText2);
+
+	fastestLapValue2->setString(fastestLabelText2);
+
+	/****	THIRD	****/
+	auto fastestLapName3 = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
+	fastestLapName3->setAnchorPoint(Vec2(0, 0.5));
+	fastestLapName3->setPosition(
+			Vec2(origin.x + visibleSize.width / 4,
+					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height * 3));
+
+	char fastestName3[50];
+	sprintf(fastestName3, "%s",
+			UserDefault::getInstance()->getStringForKey("playerName").c_str());
+	std::string fastestLabelName3(fastestName3);
+
+	fastestLapName3->setString(fastestLabelName3.c_str());
+
+	this->addChild(fastestLapName3);
+
+	auto fastestLapValue3 = Label::createWithTTF("", "fonts/squares_bold.ttf", 32);
+	fastestLapValue3->setAnchorPoint(Vec2(0, 0.5));
+	fastestLapValue3->setPosition(
+			Vec2(origin.x + visibleSize.width / 2,
+					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height * 3));
+
+	this->addChild(fastestLapValue3);
+
+	char fastestText3[50];
+	sprintf(fastestText3, "%.2f s",
+			UserDefault::getInstance()->getFloatForKey("fastestLap"));
+	std::string fastestLabelText3(fastestText3);
+
+	fastestLapValue3->setString(fastestLabelText3);
+
+	/***	BUTTONS	***/
 	auto resetButton = MenuItemImage::create("reset_button.png",
 				"reset_button_pressed.png", CC_CALLBACK_1(RankingMenu::resetRanking, this));
 
