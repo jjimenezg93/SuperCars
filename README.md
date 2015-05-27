@@ -18,7 +18,7 @@ C++
 
 ___
 #### Current Version
-v0.1.5.1-beta
+**v1.0.0 - Release 1**
 
 ___
 #### Environment
@@ -34,13 +34,14 @@ Other Software:
 * Adobe Photoshop CS6
 * Tiled 0.11
 * Office 2013
+* Harvestapp
 
 ___
 #### Requirements
 
 **Minimum Android version: 4.2.2**
 
-**Recommended screen size: 1024x600** *Still not responsive*
+**Recommended screen size: 1024x600**
 
 To try out this project, [Classes/] and [Resources/] folders must be placed into the cocos2dx project.
 
