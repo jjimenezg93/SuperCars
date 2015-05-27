@@ -164,7 +164,6 @@ void Race::createObstacle(float dt) {
 	Sprite* obstacle = Sprite::create("rock.png");
 	int positionX = getRandomSpawnX(215, 435); // RANDOM POSITIONS ALONG THE ROAD
 	obstacle->setPosition(positionX, 1030);
-	CCLog("Obstacle X position %d", positionX);
 	obstacle->setTag(1);
 	this->addChild(obstacle, 20);
 	_obstacles.pushBack(obstacle);
@@ -379,16 +378,9 @@ void Race::checkPlayerCollisions(Vector<Sprite*> v) {
 					_lapsTime[_currentLap] = _time;
 					if (_time < _fastestLap && _time != 0) {
 						_fastestLap = _time;
-						CCLog("New fastest lap: %.2f", _fastestLap);
 						UserDefault::getInstance()->setStringForKey(
-								"fastestPlayer",
-								UserDefault::getInstance()->getStringForKey(
-										"playerName").c_str());
-						CCLog("fastest player %s",
-								UserDefault::getInstance()->getStringForKey(
-										"fastestPlayer").c_str());
+								"fastestPlayer", UserDefault::getInstance()->getStringForKey("playerName").c_str());
 					}
-					CCLog("Lap %i: %.2f", _currentLap, _time);
 					_time = 0;
 				}
 
@@ -418,7 +410,7 @@ void Race::checkPlayerCollisions(Vector<Sprite*> v) {
 	}
 	for (auto opponent : _opponents) {
 		if (_player->getBoundingBox().intersectsRect(
-				opponent->getBoundingBox())) { // IF THE OBSTACLE IS AN OPPONENT
+				opponent->getBoundingBox())) {
 
 			// playEffect(source, loop, frequency, stereo effect, volume)
 			audio->playEffect("big-crash.wav", false, 1.f, 0.f, 1.f);
@@ -535,7 +527,6 @@ void Race::showEndRace(Ref* pSender) {
 	CCLog("path = %s", path.c_str());
 
 	if(FileUtils::sharedFileUtils()->isFileExist("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json")){
-		CCLog("file exists");
 		FILE* fileOpen = fopen("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
 		FileStream fs(fileOpen);
 		fastestLaps.ParseStream<0>(fs);
@@ -563,7 +554,6 @@ void Race::showEndRace(Ref* pSender) {
 	}
 
 	UserDefault::getInstance()->setFloatForKey("raceFastestLap", fast);
-	CCLog("fast = %.2f", fast);
 
 	this->unscheduleAllSelectors();
 

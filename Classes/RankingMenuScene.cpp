@@ -98,7 +98,6 @@ void RankingMenu::createMenu() {
 					origin.y + visibleSize.height/2 - fastestLapLabel->getContentSize().height));
 
 	char fastestName [50];
-	//sprintf(fastestName, "%s", UserDefault::getInstance()->getStringForKey("playerName").c_str());
 	sprintf(fastestName, "%s", _firstName.c_str());
 	std::string fastestLabelName (fastestName);
 
@@ -115,7 +114,6 @@ void RankingMenu::createMenu() {
 	this->addChild(fastestLapValue);
 
 	char fastestText [50];
-	//sprintf(fastestText, "%.2f s", UserDefault::getInstance()->getFloatForKey("fastestLap"));
 	sprintf(fastestText, "%.2f s", fastestLaps[_firstName.c_str()].GetDouble());
 	std::string fastestLabelText (fastestText);
 

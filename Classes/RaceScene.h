@@ -109,6 +109,7 @@ private:
 
 	//Checks if there is a collision between each obstacle on the road and the player
 	void checkPlayerCollisions(Vector<Sprite*> v);
+
 	void checkOpponentCollisions(Sprite* v);
 
 	void checkDeletion(Vector<Sprite*> v);

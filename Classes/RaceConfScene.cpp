@@ -50,8 +50,6 @@ bool RaceConf::init() {
 	createMenu();
 	createConfMenu();
 
-	//CCLog("Speed SET TO: %f", UserDefault::getInstance()->getFloatForKey("speed",12));
-
 	return true;
 }
 
@@ -82,6 +80,7 @@ void RaceConf::createConfMenu() {
 	_playerName->setPlaceHolder("Name");
 
 	this->addChild(_playerName);
+
 
 	/**********		DIFFICULTY	**********/
 	difficultyLabel = Label::createWithTTF("Difficulty",
