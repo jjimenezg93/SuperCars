@@ -54,6 +54,20 @@ void RankingMenu::loadJSON() {
 	Document fastestLaps;
 
 	FILE* file = fopen("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "r");
+
+	if(!file){
+		Document::AllocatorType& allocator = fastestLaps.GetAllocator();
+
+		fastestLaps.AddMember("P1", 0, allocator);
+		fastestLaps.AddMember("P2", 0, allocator);
+		fastestLaps.AddMember("P3", 0, allocator);
+
+		StringBuffer buffer;
+		Writer<StringBuffer> writer (buffer);
+		fastestLaps.Accept(writer);
+
+		fputs(buffer.GetString(), file);
+	}
 	FileStream fs(file);
 	fastestLaps.ParseStream<0>(fs);
 
@@ -207,6 +221,20 @@ void RankingMenu::resetRanking(Ref* pSender) {
 	FILE* fileOpen = fopen("/data/data/org.jjimenezg93.SuperCars/files/fastestLaps.json", "w");
 
 	fastestLaps.SetObject();
+
+	Document::AllocatorType& allocator = fastestLaps.GetAllocator();
+
+	fastestLaps.AddMember("P1", 0, allocator);
+	fastestLaps.AddMember("P2", 0, allocator);
+	fastestLaps.AddMember("P3", 0, allocator);
+
+	StringBuffer buffer;
+	Writer<StringBuffer> writer (buffer);
+	fastestLaps.Accept(writer);
+
+	if (fileOpen) {
+		fputs(buffer.GetString(), fileOpen);
+	}
 
 	fclose(fileOpen);
 
